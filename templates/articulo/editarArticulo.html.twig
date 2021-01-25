@@ -1,0 +1,19 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Nuevo Articulo{% endblock %}
+
+{% block body %}
+    {% if app.user %}
+
+    <div class="container">
+        <h4 class="text-center mt-4 mb-4">Hola {{ app.user.username }}!
+            edita tu articulo.</h4>
+        {% include 'articulo/_formulario.html.twig' with
+            {'accion' : path('editar_articulo_put', { 'id' : articulo.id}),
+                modo : 'editar',
+                btn_form : 'Editar'} %}
+    </div>
+
+    {% endif %}
+
+{% endblock %}

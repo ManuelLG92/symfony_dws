@@ -1,0 +1,43 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Articulo index{% endblock %}
+
+{% block body %}
+    <h1>Articulo index</h1>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Id_vendedor</th>
+                <th>Nombre</th>
+                <th>Descripcion</th>
+                <th>Stock</th>
+                <th>Precio</th>
+                <th>actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for articulo in articulos %}
+            <tr>
+                <td>{{ articulo.id }}</td>
+                <td>{{ articulo.idVendedor }}</td>
+                <td>{{ articulo.nombre }}</td>
+                <td>{{ articulo.descripcion }}</td>
+                <td>{{ articulo.stock }}</td>
+                <td>{{ articulo.precio }}</td>
+                <td>
+                    <a href="{{ path('articulo_show', {'id': articulo.id}) }}">show</a>
+                    <a href="{{ path('articulo_edit', {'id': articulo.id}) }}">edit</a>
+                </td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="7">no records found</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <a href="{{ path('articulo_new') }}">Create new</a>
+{% endblock %}

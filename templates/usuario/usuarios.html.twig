@@ -1,0 +1,65 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Usuarios{% endblock %}
+
+{% block body %}
+
+    <div class="container">
+        {% include  'comunes/_mensajes_flash.html.twig'%}
+    <table class="table">
+        <thead>
+        <tr>
+            <th scope="col">#</th>
+            <th scope="col">Id</th>
+            <th scope="col">Nombre</th>
+            <th scope="col">Apellidos</th>
+            <th scope="col">Telefono</th>
+            <th scope="col">Email</th>
+            <th scope="col">Cuenta</th>
+            <th scope="col">Opciones</th>
+
+        </tr>
+        </thead>
+        <tbody>
+        {%  for index, usuario in usuarios %}
+        <tr>
+            <th scope="row">{{ index+1 }}</th>
+            <td>{{ usuario.id }}</td>
+            <td>{{ usuario.nombre }}</td>
+            <td>{{ usuario.apellido }}</td>
+            <td>{{ usuario.telefono }}</td>
+            <td>{{ usuario.email }}</td>
+            <td>{{ usuario.banco.getCuentaVirtual()}}</td>
+
+            {# {{ dump(usuario) }}
+          % for cuenta in banco %}
+               {% if usuario.intCuenta() == cuenta.id %}
+               <td>{{ cuenta.cuenta_virtual }}</td>
+               {%  else %}
+                   <td>Cuenta no definida</td>
+               {% endif %}
+           {%  endfor %}#}
+
+
+            <td><a href="{{ path('editar_usuario_get', { 'id' : usuario.id }) }}">Editar</a> </td>
+        </tr>
+        {%  else %}
+            <tr>
+                <th colspan="7" scope="row" class="text-center">No hay usuarios registrados</th>
+            </tr>
+    {%  endfor %}
+        </tbody>
+    </table>
+        <div class="mt-3">
+            {{
+                include  (
+                    'comunes/_paginacion.html.twig', {
+                    numero_paginas : numero_paginas,
+                    pagina_actual : pagina_actual,
+
+                }) }}
+
+        </div>
+    </div>
+
+{% endblock %}

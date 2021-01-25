@@ -1,0 +1,70 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Cesta de compra{% endblock %}
+
+{% block body %}
+
+
+   {# {{ dump(articulos) }}#}
+    {% set imgHeight = "150" %}
+    {% set imgWidth = "70%" %}
+    {% set total = 0 %}
+    <div class="container p-2 bg-white">
+    <h3>Cesta</h3>
+        <hr>
+        <form action="{{ path('compra') }}" method="post">
+            <input type="hidden" name="id_usuario" value="{{ app.user.id  }}">
+    {% for articulo in articulos  %}
+
+        <div class="row justify-content-center">
+            <div class="col-md-3 text-center border-end border-secondary p-2">
+                {% if articulo.foto is null %}
+                    <img src="{{ asset('imagenes_articulos/jquery.png') }}" class="" alt="..." width="{{ imgWidth }}" height="{{ imgHeight }}" >
+                {% else %}
+                    <img src="{{ asset('imagenes_articulos/') ~ articulo.foto }}" class="" alt="..." width="{{ imgWidth }}" height="{{ imgHeight }}" >
+                {% endif %}
+
+            </div>
+            <div class="col-md-5 text-center text-md-start ">
+                <h3>{{ articulo.nombre }}</h3>
+                {% if articulo.stock > 0 %}
+                    {% if articulo.stock == 1 %}
+                <small class="text-success">¡Ultima unidad disponible! Date prisa!</small>
+                        <input type="hidden" name="{{"id"~ articulo.id }}" value="{{articulo.id }}">
+                        <input type="text" name="{{"u"~ articulo.id }}" id="unidades" class="text-danger text-center"
+                               value="{{ articulo.stock }}" size="{{ articulo.stock|length }}" readonly>
+                    {% else %}
+                <small class="text-success">Disponibles {{ articulo.stock }} unidades</small>
+                        <br>
+                        <label for="unidades">Cuantas quieres?</label>
+                        <input type="hidden" name="{{"id"~ articulo.id }}" value="{{articulo.id }}">
+                        <input type="text" name="{{"u"~ articulo.id }}" id="unidades" value="1"
+                       maxlength="{{ articulo.stock|length }}" size="{{ articulo.stock|length }}">
+                        {% endif %}
+                    {% set total = total+articulo.precio %}
+
+
+
+                {% else %}
+                    <small class="text-danger">Lo sentimos, no quedan unidades disponibles :(</small>
+                {% endif %}
+
+            </div>
+            <hr class="col-md-8 mt-3">
+        </div>
+        <br>
+
+    {% else %}
+
+    {% endfor %}
+            <input type="text" name="total" id="total" value="{{ total }}" readonly>
+            <p>{{ total }}</p>
+            <button type="submit">Comprar</button>
+
+        </form>
+    </div>
+
+
+
+
+{% endblock %}

@@ -1,0 +1,14 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Nuevo usuario{% endblock %}
+
+{% block body %}
+
+    <div class="container">
+        <h1>Crear usuario</h1>
+        {% include 'usuario/_formulario.html.twig' with
+            {'accion' : path('nuevo_usuario'), modo : modo} %}
+
+    </div>
+
+{% endblock %}

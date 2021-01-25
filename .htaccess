@@ -1,0 +1,1 @@
+ErrorDocument 404 http://localhost/tienda_virtual/templates/bundles/TwigBundle/Exception/error404.html.twig

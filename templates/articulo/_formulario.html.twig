@@ -1,0 +1,100 @@
+ <form action="{{ accion }}" method="post" class="row" id="formulario" enctype="multipart/form-data" autocomplete="off">
+        <div class="col-md-6 mx-auto">
+
+        <div>
+            <label class="form-label" for="nombre">Nombre del Articulo <span class="text-danger">*</span> </label>
+            <input type="text" name="nombre" id="nombre"
+                   placeholder="Nombre del articulo"
+                   class="form-control " value="{{ articulo.nombre }}"
+                   autocomplete="off" size="50" required>
+            <small class='validateNombre'></small>
+        </div>
+
+
+        <div class="row mt-3">
+            <div class="col-md-4">
+                <label class="form-label" for="stock">Stock: <span class="text-danger">*</span></label>
+                <input type="text" name="stock" id="stock"
+                       placeholder="Numero de unidades"
+                       class="form-control" value="{{ articulo.stock }}"
+                       size="4" required>
+                <small class='validateStock'></small>
+            </div>
+
+            <div class="col-md-4">
+                <label class="form-label" for="precio">Precio: <span class="text-danger">*</span></label>
+                <input type="text" name="precio" id="precio"
+                       placeholder="Precio unitario"
+                       class="form-control" value="{{ articulo.precio }}"
+                        size="4" required>
+                <small class='validatePrecio'></small>
+            </div>
+
+            <div class="col-md-4">
+                <label class="form-label" for="secciones">Seccion: <span class="text-danger">*</span></label>
+                <select  class="form-select" name="secciones" id="secciones" required>
+                    <option value="0">---</option>
+                    {% for seccion in secciones %}
+                        {% set selected = '' %}
+                        {% if articulo.getIdSeccion() is same as (seccion.id) %}
+                            {% set selected = 'selected' %}
+                        {% endif %}
+                        <option value="{{ seccion.id }}" {{ selected }}>{{ seccion.descripcion|capitalize }}</option>
+
+                    {% endfor %}
+                </select>
+                <small class='validateSeccion'></small>
+            </div>
+        </div>
+
+        <div class="mt-3">
+            <label class="form-label" for="descripcion">Descripcion del articulo <span class="text-danger">*</span></label>
+            <textarea name="descripcion" id="descripcion"
+                      cols="20" rows="5" placeholder="Introduce una descripcion del articulo"
+                      class="form-control" maxlength="255" required>{{ articulo.descripcion }}</textarea>
+            <div class="d-flex justify-content-between mt-2">
+                <div>
+                    <small class='validateDescripcion'></small>
+                </div>
+                <div>
+                    <small class='numeroCaracteres'>0/255</small>
+                </div>
+            </div>
+
+        </div>
+
+        <input type="hidden" name="usuario_id" value="{{ app.user.id }}">
+            {% if modo == 'crear' %}
+            <input type="hidden" name="csrf" value="{{ csrf_token('crear' ~ app.user.id) }}">
+            {{ dump(csrf_token('crear' ~ app.user.id )) }}
+            {{ dump(modo) }}
+                <div class="mb-3">
+                    <label for="imagen" class="form-label">Imagen (opcional)</label>
+                    <input class="form-control" type="file" id="imagen" name="imagen">
+                </div>
+            {% endif %}
+
+            {% if modo == 'editar' %}
+                <input type="hidden" name="csrf" value="{{ csrf_token('editar' ~ app.user.id) }}">
+                {{ dump(csrf_token('editar' ~ app.user.id )) }}
+                {{ dump(modo) }}
+                <div class="text-center">
+                <img src="{{ asset('imagenes_articulos/jquery.png') }}" alt="jquery" width="240px" id="imagen">
+                </div>
+                <input type="hidden" name="_method" value="PUT">
+            {% endif %}
+
+        {#<div class="col-12 mt-3 text-center">
+            <button class="btn btn-primary w-25" id="btn" type="submit">{{ btn_form|default('Crear')}}</button>
+        </div>#}
+    </div>
+     <div class="col-12 mt-3 text-center">
+         <input class="btn btn-primary w-25" type="button" value="{{ btn_form|default('Crear')}}" id="enviar">
+         <h6 class="mt-3 text-danger">Todos los campos con (*) son obligatorios</h6>
+     </div >
+
+ </form>
+
+ <script src="{{ asset('js/formValidation.js') }}" type="text/javascript">
+
+ </script>

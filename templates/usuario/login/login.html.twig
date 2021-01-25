@@ -1,0 +1,31 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Nuevo usuario{% endblock %}
+
+{% block body %}
+
+    <div class="container">
+        <div class="card col-md-4 mx-auto">
+            <div class="card-header text-center">Identificate</div>
+            <div class="card-body">
+                <form action="{{ auth_ruta }}" method="post" autocomplete="off">
+                    <div class="form-control mb-3">
+                        <label for="email">Email: </label>
+                        <input type="email" name="email" id="email">
+                    </div>
+                    <div class="form-control">
+                        <label for="clave">Clave: </label>
+                        <input type="password" name="clave" id="clave">
+                    </div>
+                    <div class="text-center">
+                    <button type="submit" class="btn btn-outline-primary btn-block mt-3">
+                    Ingresar
+                    </button></div>
+                </form>
+            </div>
+        </div>
+
+
+    </div>
+
+{% endblock %}

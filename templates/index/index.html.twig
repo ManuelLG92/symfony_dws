@@ -1,0 +1,105 @@
+
+{% extends 'base.html.twig' %}
+
+{% block title %}Buy-m3!{% endblock %}
+
+{% block body %}
+    {% set imgHeight = "150" %}
+    {% set imgWidth = "100" %}
+
+
+<div class="container">
+    {#{{ app.session.get('carro') }}
+    <h3 id="it">Items en el carro {{ app.session.get('carro') }}</h3>#}
+    <input type="hidden" class="carro" name="carro" value="{{ carro }}">
+    <h2>Esta es la pagina de inicio a buy-m3</h2>
+    <h4 class="mb-3">Articulos por secciones: </h4>
+    <hr>
+    {{ include('articulo/_seccion_articulo.html.twig', {'seccion': electronica,
+        'imgHeight' : imgHeight,
+        'imgWidth' : imgWidth,
+        titulo : 'Electronica'}) }}
+    <hr>
+
+    <br>
+    {{ include('articulo/_seccion_articulo.html.twig', {'seccion': educacion,
+        'imgHeight' : imgHeight,
+        'imgWidth' : imgWidth,
+        titulo : 'Educacion'}) }}
+    <hr>
+
+    {{ include('articulo/_seccion_articulo.html.twig', {'seccion': alimentacion,
+        'imgHeight' : imgHeight,
+        'imgWidth' : imgWidth,
+        titulo : 'Alimentacion'}) }}
+    <hr>
+    <br>
+    {{ include('articulo/_seccion_articulo.html.twig', {'seccion': hogar,
+        'imgHeight' : imgHeight,
+        'imgWidth' : imgWidth,
+        titulo : 'Hogar'}) }}
+    <hr>
+
+    <br>
+    {{ include('articulo/_seccion_articulo.html.twig', {'seccion': muebles,
+        'imgHeight' : imgHeight,
+        'imgWidth' : imgWidth,
+        titulo : 'Muebles'}) }}
+    <hr>
+
+    <br>
+    {{ include('articulo/_seccion_articulo.html.twig', {'seccion': otros,
+        'imgHeight' : imgHeight,
+        'imgWidth' : imgWidth,
+        titulo : 'Otros'}) }}
+
+
+   {#
+    <h3>Otros</h3>
+    <div class="row">
+        <div class="d-flex flex-wrap">
+    {% for otro in otros %}
+        <div class="card col-5 col-md-3 m-3 mx-auto">
+            {% if otro.foto is null %}
+                <img src="{{ asset('imagenes_articulos/jquery.png') }}" class="card-img-top" alt="..." width="200" height="150" >
+            {% else %}
+                <img src="{{ asset('imagenes_articulos/') ~ otro.foto }}" class="card-img-top" alt="...">
+            {% endif %}
+            <div class="card-body">
+                <h5 class="card-title">{{ otro.nombre|capitalize }}</h5>
+                <p class="card-text">{{ otro.descripcion|capitalize }}</p>
+                <hr>
+                <div class="d-flex justify-content-between">
+                    <span>Precio: {{ otro.precio }} BC</span>
+                    <span>Stock: {{ otro.stock }}</span>
+                </div>
+                </div>
+            {% if app.user %}
+                {% if otro.stock > 0 %}
+                    <hr>
+                    <div class="d-grid gap-2 m-1">
+                        <input type="button" value="Añadir a la cesta"
+                               class="btn btn-primary btn-block" onclick="agregarAlCarro({{ app.user.id }},{{ otro.id }})">
+                    </div>
+                {% else %}
+                    <div class="d-grid gap-2 m-1">
+                        <input type="button" value="Agotado"
+                               class="btn btn-secondary btn-block" disabled>
+                    </div>
+                {% endif %}
+
+            {% endif%}
+
+        </div>
+    {% else %}
+        <h3>Aun no hay elementos en esta seccion</h3>
+    {% endfor %}
+        </div>
+    </div>
+    <hr>#}
+
+</div>
+    <script src="{{ asset('js/carroCompra.js') }}" type="text/javascript">
+
+    </script>
+{% endblock %}

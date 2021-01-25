@@ -1,0 +1,52 @@
+<div class="navegacion">
+
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+            <a class="navbar-brand  text-white" href="/">Buy-m3</a>
+
+                {% if app.user %}
+                    <div class="dropdown">
+                        <a class="btn dropdown-toggle text-white" href="#" role="button" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
+                            {{ app.user.username }}
+                        </a>
+
+                        <span>
+                            <a href="{{ path('carro_get',{ 'id' : app.user.id } ) }}" class="text-decoration-none text-success ">
+
+                                <img src="{{ asset('cesta.png') }}" alt="">
+                            {% if app.session.get('carro') > 0%}
+                                 <span id="nroItems" class="position-absolute top-0 start-100 translate-middle badge rounded-pill text-white mt-1">{{ app.session.get('carro') }}<span class="visually-hidden">Articulos en el carro</span></span>
+
+                            {% endif %}
+                                </a>
+                        </span>
+
+
+                        <ul class="dropdown-menu dropdown-menu-end dropdown-menu-dark lista-perfil" aria-labelledby="dropdownMenuLink">
+                            <li><a class="dropdown-item" href="{{ path('perfil_usuario', { 'id' : app.user.id }) }}">Perfil</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="{{ path('app_logout') }}">Salir</a></li>
+                        </ul>
+
+
+                    </div>
+
+                {% else %}
+                    <div class="ml-auto">
+                        <span>Login</span> &nbsp;&nbsp;&nbsp;
+                        <span>Registro</span>
+                        <ul class="navbar-nav">
+                            <li class="nav-item ">
+                                <a class="nav-link" href="{{ path('app_login') }}">Login</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ path('nuevo_usuario') }}">Registro</a>
+                        </li></ul>
+
+                    </div>
+                {% endif %}
+
+        </div>
+
+        </nav>
+</div>

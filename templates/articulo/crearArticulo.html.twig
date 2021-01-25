@@ -1,0 +1,18 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Nuevo Articulo{% endblock %}
+
+{% block body %}
+    {% if app.user %}
+
+    <div class="container-fluid">
+        <h4 class="text-center mt-4 mb-4">Hola {{ app.user.username }}!
+            agrega un articulo para vender.</h4>
+        {% include 'articulo/_formulario.html.twig' with
+            {'accion' : path('articulo_nuevo_post'), modo : 'crear'} %}
+    </div>
+
+
+    {% endif %}
+
+{% endblock %}
