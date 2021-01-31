@@ -3,33 +3,26 @@ function agregarAlCarro(usuarioId,articuloId, inputId) {
         'usuarioId' : usuarioId,
         'articuloId' : articuloId,
     }
-    tempInput = inputId
     $(inputId).prop("disabled", true)
     $(inputId).val("Agregando..")
-    console.log(inputId)
-
-/*
-    $.ajax({
-        url : '/carro',
-        type : 'post',
-        data : parametros,
-        beforeSend: function () {
-            console.log("enviando")
-        },
-        success:  function (response) { //una vez que el archivo recibe el request lo procesa y lo devuelve
-            console.log(response['respuesta']);
-        }
-    })*/
-
-
 
     $.post( "/carro", parametros, function(response) {
+        var codigo = response['respuesta'];
         console.log(response['respuesta']);
         var cantidad = response['cantidad'];
-       $('#nroItems').text(cantidad.toString())
-        console.log(cantidad)
 
+        if (codigo === 4){
+            console.log("Se ejecuta codigo 4")
+            $(inputId).val("Agregado")
+            alert("Este articulo ya esta en tu carro de compra :D !")
+
+        } else {
+            console.log("Se ejecuta codigo 0")
+          $('#nroItems').text(cantidad.toString())
         $(inputId).val("Agregado")
+        }
+
+
     }).fail(function(response) {
         $(inputId).prop("disabled", false);
         $(inputId).val("Añadir al carro")
@@ -39,3 +32,4 @@ function agregarAlCarro(usuarioId,articuloId, inputId) {
 
     console.log("se ejecuta " + usuarioId + ", art "+articuloId)
 }
+

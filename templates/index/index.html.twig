@@ -8,8 +8,9 @@
     {% set imgWidth = "100" %}
 
 
-<div class="container">
+<div class="container rounded contenedor">
     {#{{ app.session.get('carro') }}
+
     <h3 id="it">Items en el carro {{ app.session.get('carro') }}</h3>#}
     <input type="hidden" class="carro" name="carro" value="{{ carro }}">
     <h2>Esta es la pagina de inicio a buy-m3</h2>
@@ -19,6 +20,14 @@
         'imgHeight' : imgHeight,
         'imgWidth' : imgWidth,
         titulo : 'Electronica'}) }}
+    <div class="text-center mt-3 mb-3">
+        <h5>Si quieres ver todos los productos de esta seccion
+            <a href="{{ path('articulos_seccion', {'seccion' : idElectronica}) }}"
+               target="_blank">
+                pincha aqui.
+            </a>
+        </h5>
+    </div>
     <hr>
 
     <br>
@@ -26,18 +35,42 @@
         'imgHeight' : imgHeight,
         'imgWidth' : imgWidth,
         titulo : 'Educacion'}) }}
+    <div class="text-center mt-3 mb-3">
+        <h5>Si quieres ver todos los productos de esta seccion
+            <a href="{{ path('articulos_seccion', {'seccion' : idEducacion}) }}"
+               target="_blank">
+                pincha aqui.
+            </a>
+        </h5>
+    </div>
     <hr>
 
     {{ include('articulo/_seccion_articulo.html.twig', {'seccion': alimentacion,
         'imgHeight' : imgHeight,
         'imgWidth' : imgWidth,
         titulo : 'Alimentacion'}) }}
+    <div class="text-center mt-3 mb-5">
+        <h5>Si quieres ver todos los productos de esta seccion
+            <a href="{{ path('articulos_seccion', {'seccion' : idAlimentacion}) }}"
+               target="_blank">
+                pincha aqui.
+            </a>
+        </h5>
+    </div>
     <hr>
     <br>
     {{ include('articulo/_seccion_articulo.html.twig', {'seccion': hogar,
         'imgHeight' : imgHeight,
         'imgWidth' : imgWidth,
         titulo : 'Hogar'}) }}
+    <div class="text-center mt-3 mb-3">
+        <h5>Si quieres ver todos los productos de esta seccion
+            <a href="{{ path('articulos_seccion', {'seccion' : idHogar}) }}"
+               target="_blank">
+                pincha aqui.
+            </a>
+        </h5>
+    </div>
     <hr>
 
     <br>
@@ -45,6 +78,14 @@
         'imgHeight' : imgHeight,
         'imgWidth' : imgWidth,
         titulo : 'Muebles'}) }}
+    <div class="text-center mt-3 ">
+        <h5 class="mb-3">Si quieres ver todos los productos de esta seccion
+            <a href="{{ path('articulos_seccion', {'seccion' : idMuebles}) }}"
+               target="_blank">
+                pincha aqui.
+            </a>
+        </h5>
+    </div>
     <hr>
 
     <br>
@@ -52,51 +93,14 @@
         'imgHeight' : imgHeight,
         'imgWidth' : imgWidth,
         titulo : 'Otros'}) }}
-
-
-   {#
-    <h3>Otros</h3>
-    <div class="row">
-        <div class="d-flex flex-wrap">
-    {% for otro in otros %}
-        <div class="card col-5 col-md-3 m-3 mx-auto">
-            {% if otro.foto is null %}
-                <img src="{{ asset('imagenes_articulos/jquery.png') }}" class="card-img-top" alt="..." width="200" height="150" >
-            {% else %}
-                <img src="{{ asset('imagenes_articulos/') ~ otro.foto }}" class="card-img-top" alt="...">
-            {% endif %}
-            <div class="card-body">
-                <h5 class="card-title">{{ otro.nombre|capitalize }}</h5>
-                <p class="card-text">{{ otro.descripcion|capitalize }}</p>
-                <hr>
-                <div class="d-flex justify-content-between">
-                    <span>Precio: {{ otro.precio }} BC</span>
-                    <span>Stock: {{ otro.stock }}</span>
-                </div>
-                </div>
-            {% if app.user %}
-                {% if otro.stock > 0 %}
-                    <hr>
-                    <div class="d-grid gap-2 m-1">
-                        <input type="button" value="Añadir a la cesta"
-                               class="btn btn-primary btn-block" onclick="agregarAlCarro({{ app.user.id }},{{ otro.id }})">
-                    </div>
-                {% else %}
-                    <div class="d-grid gap-2 m-1">
-                        <input type="button" value="Agotado"
-                               class="btn btn-secondary btn-block" disabled>
-                    </div>
-                {% endif %}
-
-            {% endif%}
-
-        </div>
-    {% else %}
-        <h3>Aun no hay elementos en esta seccion</h3>
-    {% endfor %}
-        </div>
+    <div class="text-center mt-3 mb-5">
+        <h5 class="pb-3">Si quieres ver todos los productos de esta seccion
+            <a href="{{ path('articulos_seccion', {'seccion' : idOtros}) }}"
+               target="_blank">
+                pincha aqui.
+            </a>
+        </h5>
     </div>
-    <hr>#}
 
 </div>
     <script src="{{ asset('js/carroCompra.js') }}" type="text/javascript">

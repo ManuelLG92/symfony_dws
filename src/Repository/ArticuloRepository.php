@@ -5,6 +5,7 @@ namespace App\Repository;
 use App\Entity\Articulo;
 use App\Entity\Usuario;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\Tools\Pagination\Paginator;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -26,10 +27,13 @@ class ArticuloRepository extends ServiceEntityRepository
             ->andWhere('a.id_seccion = :val')
             ->setParameter('val', $value)
             ->orderBy('a.id', 'ASC')
-            ->setMaxResults(5)
+            ->setMaxResults(6)
             ->getQuery()
             ->getResult();
     }
+
+
+
     public function findByIdVendedor($value)
     {
         return $this->createQueryBuilder('a')
@@ -40,6 +44,38 @@ class ArticuloRepository extends ServiceEntityRepository
             ->getResult()
             ;
     }
+    public function NumeroArticulosPorSeccion($value): ?int
+    {
+        return $this->createQueryBuilder('a')
+            ->select('count(a.id)')
+            ->andWhere('a.id_seccion = :val')
+            ->setParameter('val', $value)
+            ->getQuery()
+            ->getSingleScalarResult();
+
+    }
+
+    public function buscarArticulosPorSeccion($seccion, $pagina,$elementosPagina)
+    {
+        $queryDql = $this->createQueryBuilder('a')
+            ->andWhere('a.id_seccion = :val')
+            ->setParameter('val', $seccion)
+            ->orderBy('a.id', 'ASC')
+            ->getQuery();
+        return $this->paginacion($queryDql,$pagina,$elementosPagina);
+    }
+
+    public function paginacion ($dql, $pagina, $numeroElementos)
+    {
+        $paginador = new Paginator($dql);
+        $paginador->getQuery()
+            ->setFirstResult($numeroElementos * ($pagina-1))
+            ->setMaxResults($numeroElementos);
+        return $paginador;
+
+    }
+
+
 
 
     // /**

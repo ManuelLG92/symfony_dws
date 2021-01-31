@@ -52,7 +52,7 @@ class ArticuloController extends AbstractController
 
     }
     /**
-     * @Route("/editar/{id}", name="editar_articulo_get", methods={"GET"})
+     * @Route("/editar/{id<\d+>}", name="editar_articulo_get", methods={"GET"})
      */
     public function editarArticuloGet(int $id,
       ArticuloRepository $articuloRepository,SeccionRepository $seccionRepository,
@@ -74,7 +74,7 @@ class ArticuloController extends AbstractController
         }
     }
     /**
-     * @Route("/editar/{id}", name="editar_articulo_put", methods={"PUT"})
+     * @Route("/editar/{id<\d+>}", name="editar_articulo_put", methods={"PUT"})
      */
     public function editarArticulo(
         int $id, ArticuloRepository $articuloRepository,
@@ -295,7 +295,7 @@ class ArticuloController extends AbstractController
     }
 
     /**
-     * @Route("/{id}", name="articulo_show", methods={"GET"})
+     * @Route("/{id<\d+>}", name="articulo_show", methods={"GET"})
      */
     public function show(Articulo $articulo): Response
     {
@@ -305,7 +305,7 @@ class ArticuloController extends AbstractController
     }
 
     /**
-     * @Route("/{id}/edit", name="articulo_edit", methods={"GET","POST"})
+     * @Route("/{id<\d+>}/edit", name="articulo_edit", methods={"GET","POST"})
      */
     public function edit(Request $request, Articulo $articulo): Response
     {
@@ -325,7 +325,7 @@ class ArticuloController extends AbstractController
     }
 
     /**
-     * @Route("/{id}", name="articulo_delete", methods={"DELETE"})
+     * @Route("/{id<\d+>}", name="articulo_delete", methods={"DELETE"})
      */
  /*   public function delete(Request $request, Articulo $articulo,
                            SecurityManager $securityManager): Response

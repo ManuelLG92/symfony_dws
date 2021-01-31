@@ -1,20 +1,22 @@
-<h3>{{ titulo }}</h3>
+<h3 class="text-center">{{ titulo }}</h3>
+<hr>
 <div class="row">
-    <div class="d-flex flex-wrap">
+    <div class="d-flex flex-wrap text-center justify-content-center ">
         {% for sec in  seccion  %}
 
-            <div class="card col-5 col-md-3 m-3 mx-auto">
-                <a href="{{ path("articulo_show", {'id': sec.id}) }}">
+            <div class="card col-5 col-md-3 m-1 m-2" >
+                <a href="{{ path("articulo_show", {'id': sec.id}) }} " target="_blank">
                 {% if sec.foto is null %}
-                    <img src="{{ asset('imagenes_articulos/jquery.png') }}" class="card-img-top p-5" alt="..." >
+                    <img src="{{ asset('imagenes_articulos/jquery.png') }}" class="card-img-top p-5" alt="..." width="{{ imgWidth }}" height="{{ imgHeight }}">
                 {% else %}
                     <img src="{{ asset('imagenes_articulos/') ~ sec.foto }}" class="card-img-top p-1" alt="..." width="{{ imgWidth }}" height="{{ imgHeight }}" >
                 {% endif %}
                 </a>
                 <div class="card-body">
-                    <a href="{{ path("articulo_show",{'id': sec.id}) }}" class="text-decoration-none text-dark">
-                    <h5 class="card-title text-center">{{ sec.nombre|capitalize }}</h5>
-                    <p class="card-text">{{ sec.descripcion|capitalize }}</p>
+                    <a href="{{ path("articulo_show",{'id': sec.id}) }}" class="text-decoration-none text-dark"
+                    target="_blank">
+                    <h5 class="card-title text-center">{{ sec.nombre|capitalize|length > 20 ? sec.nombre|slice(0, 20) ~ '...': sec.nombre }}</h5>
+                    <p class="card-text">{{ sec.descripcion|capitalize|length > 20 ? sec.descripcion|slice(0, 20) ~ '...': sec.descripcion  }}</p>
 
                     {% if sec.stock > 0 %}
 
@@ -43,9 +45,9 @@
                         <hr>
                         <div class="d-grid gap-2 m-1">
                             <input type="button" value="Añadir a la cesta"
-                                   class="btn btn-primary btn-block text-wrap" id="{{ inputId }}"
+                                   class="btn btn-success btn-block text-wrap" id="{{ inputId }}"
                                    onclick="agregarAlCarro({{ app.user.id }},{{ sec.id }},{{ inputId }} )">
-                            {{ dump(app.user) }}
+
                         </div>
                     {% else %}
                         <div class="d-grid gap-2 m-1">

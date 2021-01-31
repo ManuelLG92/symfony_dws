@@ -9,13 +9,17 @@ use App\Entity\Carro;
 use App\Entity\Detalle;
 use App\Entity\Factura;
 use App\Entity\Items;
+use App\Entity\Valoracion;
 use App\Repository\ArticuloRepository;
 use App\Repository\BancoRepository;
 use App\Repository\CarroRepository;
+use App\Repository\FacturaRepository;
 use App\Repository\ItemsRepository;
 use App\Repository\UsuarioRepository;
+use App\Repository\ValoracionRepository;
 use App\Repository\VendedorRepository;
 use App\Service\SecurityManager;
+use ContainerVy57jxQ\getVendedorRepositoryService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -43,7 +47,9 @@ class CarroController extends AbstractController
                           //  $carroCompraUsuario = $carroRepository->findOneByIdUsuario($usuarioSolicitud);
                             if ($carroCompraUsuario = $carroRepository->
                             findOneByIdUsuario($usuarioSolicitud)){
-
+                                if ($itemsRepository->findItemsByCarroIdAndArticuloId($carroCompraUsuario->getId(),$articulo->getId())){
+                                    return $this->json(['respuesta' => 4]);
+                                }
                                 $agregarArticuloAlCarro = new Items();
                                 $agregarArticuloAlCarro->setIdArticulo($idArticuloSolicitud);
                                 $agregarArticuloAlCarro->setIdCarro($carroCompraUsuario->getId());
@@ -52,7 +58,7 @@ class CarroController extends AbstractController
                                 $numeroDeItemsEnCarro = $itemsRepository->ItemsPorUsuario($carroCompraUsuario->getId());
                                 //$numeroDeItemsEnCarro++;
                                 $carroCompraUsuario->
-                                setCantidad($numeroDeItemsEnCarro++);
+                                setCantidad($numeroDeItemsEnCarro);
                                 $em->persist($carroCompraUsuario);
                                 $em->flush();
                                 $request->getSession()->set('carro',$carroCompraUsuario->getCantidad());
@@ -105,7 +111,6 @@ class CarroController extends AbstractController
 
     }
 
-
     /**
      * @Route("/carro/{id}",
      *     requirements = {
@@ -115,7 +120,6 @@ class CarroController extends AbstractController
     public function articulosEnCarro(int $id, CarroRepository $carroRepository,
                                      ItemsRepository $itemsRepository,
                                      ArticuloRepository $articuloRepository,
-
                                      SecurityManager $securityManager ,Request $request): Response
     {
         $articulosEnCarro = [];
@@ -128,12 +132,14 @@ class CarroController extends AbstractController
                               $articulo = $articuloRepository->find($item->getIdArticulo());
                                 $articulosEnCarro[] = $articulo;
                             }
+                            $session = $request->getSession();
+                            $session->set('carro', $carroVista->getCantidad());
                             return $this->render('carro/carro.html.twig', [
                                 'articulos' => $articulosEnCarro,
                             ]);
                         } else {
                             return $this->render('carro/carro.html.twig', [
-                                'articulos' => 'No fue posible',
+                                'articulos' => null,
                             ]);
                         }
 
@@ -172,7 +178,8 @@ class CarroController extends AbstractController
             $errorOperacion = false;
 
             foreach ($parametros as $llave => $parametro) {
-                if ($llave == "id_usuario" || $llave == "total"){
+                if ($llave == "id_usuario" || $llave == "total"
+                    || str_starts_with($llave, 'h') || $llave == "comprar"){
                     continue;
                 }
                 $i++;
@@ -183,9 +190,11 @@ class CarroController extends AbstractController
                     $idArticulo = (int)$parametro;
 
                 }
-            //TODO procesar los articulos, capturados mediante foreach en una array clave => valor = [id=unidades]
 
             }
+            //return $this->json (['respuesta' => $parametros, $articulos ]);
+
+
             $factura = new Factura();
 
             $fecha = new \DateTime('now');
@@ -308,5 +317,182 @@ class CarroController extends AbstractController
             return $this->redirectToRoute('index');
         }
     }
+
+    /**
+     * @Route("/carro/{id<\d+>}/{usuario<\d+>}",
+     *     name="item_delete", methods={"GET"})
+     */
+    public function eliminarItemCarrito(int $id,int $usuario,
+                    CarroRepository $carroRepository,ItemsRepository $itemsRepository,
+                    SecurityManager $securityManager, UsuarioRepository $usuarioRepository,
+                    EntityManagerInterface $em, Request $request)
+    {
+        if($securityManager->chequeaUsuarioSolicitud($request,$usuario)){
+            if($carroItemEliminar = $securityManager->
+            chequeaPropiedadCarro($usuario, $carroRepository)) {
+                if($itemParaEliminar = $itemsRepository->
+                findItemsByCarroIdAndArticuloId($carroItemEliminar->getId(),$id)){
+                    $em->remove($itemParaEliminar);
+                    $em->flush();
+                    $itemsDelCarro = $itemsRepository->ItemsPorUsuario($carroItemEliminar->getId());
+                    $carroItemEliminar->setCantidad($itemsDelCarro);
+                    $em->persist($carroItemEliminar);
+                    $em->flush();
+                    $session = $request->getSession();
+                    $session->set('carro', $carroItemEliminar->getCantidad());
+                    return $this->redirectToRoute('carro_get', ['id' => $usuario]);
+                } else {
+                    return $this->json (['respuesta' => 'item no encontrado' ]);
+                }
+
+            }else {
+                return $this->json (['respuesta' => 'Carro no autenticado' ]);
+            }
+        }else {
+            return $this->json (['respuesta' => 'Usuario no verificado' ]);
+        }
+
+
+
+
+    }
+
+    /**
+     * @Route("/valoracion",
+     *     name="valoracion", methods={"POST"})
+     */
+    public function ValoracionArticulos(UsuarioRepository $usuarioRepository,
+                    FacturaRepository $facturaRepository,SecurityManager $securityManager,
+                    EntityManagerInterface $em, ArticuloRepository $articuloRepository,
+                    VendedorRepository $vendedorRepository, ValoracionRepository $valoracionRepository,
+                    Request $request)
+    {
+    $parametros = $request->request->all();
+    $idFactura = $parametros['idFactura'];
+    $idUsuario = $parametros['idUsuario'];
+
+        if($securityManager->chequeaUsuarioSolicitud($request,$idUsuario)){
+           if( $FacturaValoracion = $facturaRepository->find($idFactura)){
+
+                $contador = 0;
+                $valoracionForm = 0;
+                $idVendedor = 0;
+                $idDetalle = 0;
+                $idArticulo = 0;
+                $idValoracion = 0;
+                $valoraciones = [];
+               $idVendedores = [];
+               $idArticulos = [];
+               //return $this->json (['respuesta' => $parametros ]);
+
+               foreach ($parametros as $llave => $parametro){
+                   if ($llave == "idFactura" || $llave == "idUsuario"){
+                       continue;
+                   }
+                   $contador++;
+                   if ($contador == 1){
+                       $valoracionForm = $parametro;
+                       continue;
+                   }
+                   if ($contador == 2){
+                       $idValoracion = $parametro;
+                       continue;
+                   }
+
+                   if ($contador == 3){
+                       $idArticulo = $parametro;
+                       continue;
+                   }
+
+                   if ($contador == 4){
+                       $idVendedor = $parametro;
+                       continue;
+                   } if ($contador == 5) {
+                       $idDetalle = $parametro;
+
+                       $valoraciones[] =
+                           ['idVendedor' => $idVendedor,'idCliente' => $idUsuario,
+                           'idArticulo' => $idArticulo, 'idDetalle' =>$idDetalle,
+                           'idFactura' => $FacturaValoracion->getId(), 'valor' => $valoracionForm,
+                           'idValoracion' => $idValoracion];
+                       $contador = 0;
+
+
+                       continue;
+                   }
+               }
+                $errorValoracion = false;
+               $valoracionesPersist = [];
+              // return $this->json (['respuesta' => $valoraciones]);
+                  foreach ($valoraciones as $val){
+                      if ($val['idValoracion'] == 0) {
+                      $valoracion = new Valoracion();
+                      $vendedor = $usuarioRepository->find($val['idVendedor']);
+                      $valoracion->setIdVendedor($vendedor->getIdVendedor());
+                      $valoracion->setIdCliente($val['idCliente']);
+                      $valoracion->setIdArticulo($val['idArticulo']);
+                      $valoracion->setNumeroDetalle($val['idDetalle']);
+                      $valoracion->setNumeroFactura($val['idFactura']);
+                      $valoracion->setValor($val['valor']);
+                      $fechaActual = new \DateTime('now');
+                      $valoracion->setFecha($fechaActual);
+                      $valoracionesPersist[] = $valoracion;
+                      $idVendedores[] = $vendedor->getIdVendedor();
+                      $idArticulos[] = $val['idArticulo'];
+                      } else {
+                        $valoracionExistente = $valoracionRepository->find((int)$val['idValoracion']);
+                          $valoracionExistente->setValor($val['valor']);
+                          $idVendedores[] = $valoracionExistente->getIdVendedor();
+                          $idArticulos[] = $valoracionExistente->getIdArticulo();
+                          $valoracionesPersist[] = $valoracionExistente;
+                      }
+                  }
+
+
+               if ($errorValoracion){
+                   return $this->redirectToRoute('perfil_usuario', ['id' => $idUsuario]);
+
+               } else {
+                   foreach ($valoracionesPersist as $valoracionCrear){
+                       $em->persist($valoracionCrear);
+                       $em->flush();
+                   }
+                   $arrayVendedorUnicos = array_unique($idVendedores);
+                   $arrayArticulosUnicos = array_unique($idArticulos);
+
+                   foreach ($arrayVendedorUnicos as $vendedorId){
+                       $vendedorActual = $vendedorRepository->find($vendedorId);
+                       $valoracionVendedor = round($valoracionRepository->
+                       findValoracionVendedorById($vendedorActual->getId()),1);
+                       $vendedorActual->setValoracion($valoracionVendedor);
+                       $em->persist($vendedorActual);
+                       $em->flush();
+                   }
+
+                   foreach ($arrayArticulosUnicos as $articuloId){
+                       $articuloActual = $articuloRepository->find($articuloId);
+                       $valoracionArticulo = round($valoracionRepository->
+                       findValoracionItemsById($articuloActual->getId()),1);
+                       $articuloActual->setValoracion($valoracionArticulo);
+                       $em->persist($articuloActual);
+                       $em->flush();
+                   }
+                   return $this->redirectToRoute('perfil_usuario', ['id' => $idUsuario]);
+
+               }
+
+
+           } else {
+               return $this->redirectToRoute('perfil_usuario', ['id' => $idUsuario]);
+           }
+
+        } else {
+            return $this->redirectToRoute('app_login');
+        }
+
+       // return $this->json (['respuesta' => $parametros, $idFactura, $idUsuario]);
+    }
 }
+
+
 

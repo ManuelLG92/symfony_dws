@@ -47,16 +47,19 @@ class Valoracion
      */
     private $valor;
 
+    /**
+     * @ORM\Column(type="datetime")
+     */
     private  $fecha;
 
 
-    public function getFecha()
+    public function getFecha(): ?\DateTimeInterface
     {
         return $this->fecha;
     }
 
 
-    public function setFecha($fecha): self
+    public function setFecha(\DateTimeInterface $fecha): self
     {
         $this->fecha = $fecha;
         return $this;

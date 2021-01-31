@@ -52,6 +52,24 @@ class Articulo
      */
     private $foto;
 
+    /**
+     * @ORM\Column(type="float", )
+     */
+    private $valoracion;
+
+
+    public function getValoracion(): ? float
+    {
+        return $this->valoracion;
+    }
+
+
+    public function setValoracion($valoracion):  self
+    {
+        $this->valoracion = $valoracion;
+        return $this;
+    }
+
     public function getFoto() : ?string
     {
         return $this->foto;

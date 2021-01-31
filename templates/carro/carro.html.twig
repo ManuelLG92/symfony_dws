@@ -5,18 +5,19 @@
 {% block body %}
 
 
-   {# {{ dump(articulos) }}#}
+
+    {% if articulos is not null %}
     {% set imgHeight = "150" %}
     {% set imgWidth = "70%" %}
     {% set total = 0 %}
     <div class="container p-2 bg-white">
-    <h3>Cesta</h3>
+    <h3 class="text-center">Cesta</h3>
         <hr>
-        <form action="{{ path('compra') }}" method="post">
+        <form action="{{ path('compra') }}" method="post" id="myFormulario">
             <input type="hidden" name="id_usuario" value="{{ app.user.id  }}">
     {% for articulo in articulos  %}
 
-        <div class="row justify-content-center">
+        <div class="row justify-content-center" id="{{"div"~ articulo.id }}">
             <div class="col-md-3 text-center border-end border-secondary p-2">
                 {% if articulo.foto is null %}
                     <img src="{{ asset('imagenes_articulos/jquery.png') }}" class="" alt="..." width="{{ imgWidth }}" height="{{ imgHeight }}" >
@@ -25,24 +26,51 @@
                 {% endif %}
 
             </div>
+
             <div class="col-md-5 text-center text-md-start ">
                 <h3>{{ articulo.nombre }}</h3>
+
                 {% if articulo.stock > 0 %}
+
                     {% if articulo.stock == 1 %}
                 <small class="text-success">¡Ultima unidad disponible! Date prisa!</small>
                         <input type="hidden" name="{{"id"~ articulo.id }}" value="{{articulo.id }}">
+                        <p class="text-primary">Precio : {{ articulo.precio }}</p>
                         <input type="text" name="{{"u"~ articulo.id }}" id="unidades" class="text-danger text-center"
                                value="{{ articulo.stock }}" size="{{ articulo.stock|length }}" readonly>
                     {% else %}
                 <small class="text-success">Disponibles {{ articulo.stock }} unidades</small>
                         <br>
-                        <label for="unidades">Cuantas quieres?</label>
-                        <input type="hidden" name="{{"id"~ articulo.id }}" value="{{articulo.id }}">
-                        <input type="text" name="{{"u"~ articulo.id }}" id="unidades" value="1"
-                       maxlength="{{ articulo.stock|length }}" size="{{ articulo.stock|length }}">
-                        {% endif %}
-                    {% set total = total+articulo.precio %}
 
+                        <label for="{{"u"~ articulo.id }}">Cuantas quieres?</label>
+                        <input type="hidden" name="{{"id"~ articulo.id }}" value="{{articulo.id }}">
+                        <input type="text" name="{{"u"~ articulo.id }}" id="{{"u"~ articulo.id }}"  value="1"
+                       maxlength="{{ articulo.stock|length }}" size="{{ articulo.stock|length }}"
+                        onChange='actualizaCantidad({{"u"~ articulo.id }},{{ articulo.precio }},
+                        {{ articulo.stock }}, {{"t"~ articulo.id }}, {{"h"~ articulo.id }} )'
+                        onkeyup='actualizaCantidad({{"u"~ articulo.id }},{{ articulo.precio }},
+                        {{ articulo.stock }}, {{"t"~ articulo.id }}, {{"h"~ articulo.id }} )'>
+
+                        <small class="{{"e"~ articulo.id }}"></small>
+                        <p class="text-primary">Precio : {{ articulo.precio }} BC</p>
+                        <input type="hidden" name="{{"h"~ articulo.id }}"
+                               id="{{"h"~ articulo.id }}" value="{{ articulo.precio }}">
+
+                        <p id="{{"t"~ articulo.id }}">
+                            Precio total de este producto: {{ articulo.precio }} BC
+                        </p>
+                        <div><a href="{{ path('item_delete', {'id': articulo.id, 'usuario': app.user.id}) }}">Eliminar de la cesta</a></div>
+                      {#  <form method="post" action="{{ path('item_delete', {'id': articulo.id}) }}" onsubmit="return confirm('Estas seguro de eliminar este articulo de tu cesta de compra?');">
+                            <input type="hidden" name="_method" value="DELETE">
+                            <input type="hidden" name="_token" value="{{ csrf_token('borrar' ~ articulo.id) }}">
+                            <input type="hidden" name="idUsuario" value="{{ app.user.id }}">
+
+                            <button class="btn btn-outline-danger"></button>
+                        </form>#}
+                    {% endif %}
+
+
+                    {% set total = total+articulo.precio %}
 
 
                 {% else %}
@@ -57,14 +85,29 @@
     {% else %}
 
     {% endfor %}
-            <input type="text" name="total" id="total" value="{{ total }}" readonly>
-            <p>{{ total }}</p>
-            <button type="submit">Comprar</button>
+            <input type="hidden" name="total" id="total" value="{{ total }}" readonly>
+            <p id="totalCompra" class="text-center">Total de tu compra: {{ total }}</p>
 
+            <div class="text-center">
+                <input type="button" class="btn btn-lg btn-success text-center" name="comprar"
+               id="comprar" value="Comprar" onclick="compruebaErrores()">
+{#                <button type="submit" class="btn btn-lg btn-success text-center" id="comprar">Comprar</button>#}
+            </div>
         </form>
     </div>
+    {% else %}
+    <div class="container contenedor rounded">
+        <div class="row">
+            <div class="col-md-10 mx-auto p-2 text-center">
+                <h2>Aun no has agregado ningun articulo a tu cesta de compra</h2>
+            </div>
+        </div>
+
+    </div>
+    {% endif %}
 
 
-
+    <script  src="{{ asset('js/zonaDeCompra.js') }}" type="text/javascript">
+    </script>
 
 {% endblock %}

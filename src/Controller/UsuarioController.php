@@ -12,6 +12,7 @@ use App\Repository\DireccionRepository;
 use App\Repository\FacturaRepository;
 use App\Repository\UsuarioRepository;
 use App\Repository\BancoRepository;
+use App\Repository\ValoracionRepository;
 use App\Repository\VendedorRepository;
 use App\Service\UsuarioManager;
 use Doctrine\ORM\EntityManager;
@@ -286,7 +287,7 @@ class UsuarioController extends AbstractController
     }
 
     /**
-     * @Route("/editar/{id}", methods={"GET"}, name="editar_usuario_get")
+     * @Route("/editar/{id<\d+>}", methods={"GET"}, name="editar_usuario_get")
      */
     public function EditarUsuarios(int $id,
    UsuarioRepository $usuarioRepository, DireccionRepository $direccionRepository,
@@ -307,7 +308,7 @@ class UsuarioController extends AbstractController
 
 
     /**
-     * @Route("/perfil/{id}", methods={"GET"}, name="perfil_usuario")
+     * @Route("/perfil/{id<\d+>}", methods={"GET"}, name="perfil_usuario")
      */
     public function PerfilUsuario (
         int $id,
@@ -318,6 +319,7 @@ class UsuarioController extends AbstractController
         VendedorRepository $vendedorRepository,
         FacturaRepository $facturaRepository,
         DetalleRepository $detalleRepository,
+
         Request $request): Response
     {
         if ($this->chequeaUsuarioEnSesion($request,$id)){
@@ -328,6 +330,9 @@ class UsuarioController extends AbstractController
         $articulos = $articuloRepository->findByIdVendedor($usuario->getIdVendedor());
         $vendedor = $vendedorRepository->find($usuario->getIdVendedor());
         $facturas = $facturaRepository->findByUsuarioId($usuario->getId());
+
+
+        $ventasDetalle=[];
         /*$detalle = [];
         if ($facturas != null) {
             foreach ($facturas as $factura){
@@ -337,6 +342,8 @@ class UsuarioController extends AbstractController
         } else {
             $detalle = null;
         }*/
+            $VentasVendedor = $detalleRepository->
+            ArticulosPorVendedor($vendedor->getId());
 
 
 
@@ -348,7 +355,7 @@ class UsuarioController extends AbstractController
                 'articulos' => $articulos,
                 'vendedor' => $vendedor,
                 'facturas' => $facturas,
-                //'detalle' => $detalle,
+                'ventas' => $VentasVendedor,
             ]);
         }
         } else {
@@ -358,21 +365,17 @@ class UsuarioController extends AbstractController
     }
 
 
-    /**
-     * @Route("/login", methods={"GET"}, name="usuario_login_form")
-     */
-    public function login ()
+
+   /* public function login ()
     {
         $auth_rute = "/usuario/auth";
         return $this->render('usuario/login/login.html.twig', [
             'auth_ruta' => $auth_rute,
         ]);
-    }
+    }*/
 
-    /**
-     * @Route("/auth", methods={"POST"}, name="auth_user")
-     */
-    public function autenticacion (
+
+   /* public function autenticacion (
         Request $request,
         UsuarioRepository $usuarioRepository,
         UsuarioManager $usuarioManager): Response
@@ -401,9 +404,9 @@ class UsuarioController extends AbstractController
                             ['content-type' => 'text/html']
                         );
                         return $response;
-                    }/**/
+                    }
 
-                } /**/else {
+                } else {
                     $respuesta = 'Email Invalido';
                     $response = new Response(
                         $respuesta,
@@ -413,7 +416,7 @@ class UsuarioController extends AbstractController
                     return $response;
                 }
             }
-        }/**/ else {
+        } else {
             $response = new Response(
                 'Los campos no pueden ser nulos',
                 Response::HTTP_OK,
@@ -430,7 +433,7 @@ class UsuarioController extends AbstractController
         );
 
 
-    }
+    }*/
 
     public function chequeaUsuarioEnSesion(Request $request, int $idUsuario): bool
     {

@@ -1,0 +1,39 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ nombre_seccion }}{% endblock %}
+
+{% block body %}
+    {% set imgHeight = "150" %}
+    {% set imgWidth = "100" %}
+
+<div class="container rounded contenedor p-3">
+
+   {# {{ app.session.get('carro') }}
+    <h3 id="it">Items en el carro {{ app.session.get('carro') }}</h3>
+    <input type="hidden" class="carro" name="carro" value="{{ carro }}">
+    <h2>Esta es la pagina de inicio a buy-m3</h2>
+    <h4 class="mb-3">Articulos por secciones: </h4>
+    <hr>#}
+
+    {{ include('articulo/_seccion_articulo.html.twig', {'seccion': articulos,
+        'imgHeight' : imgHeight,
+        'imgWidth' : imgWidth,
+        titulo : nombre_seccion }) }}
+    <hr>
+    <div class="mt-3">
+        {{
+        include  (
+            'comunes/_paginacion.html.twig', {
+            numero_paginas : numero_paginas,
+            pagina_actual : pagina_actual,
+            'parametros_ruta' : { 'seccion' : seccion }
+
+        }) }}
+
+    </div>
+
+</div>
+    <script src="{{ asset('js/carroCompra.js') }}" type="text/javascript">
+
+    </script>
+{% endblock %}

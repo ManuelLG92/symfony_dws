@@ -36,6 +36,25 @@ class SeccionRepository extends ServiceEntityRepository
     }
     */
 
+    public function findSeccionesId()
+    {
+        return $this->createQueryBuilder('s')
+            ->select('s.id')
+            ->getQuery()
+            ->getScalarResult();
+
+    }
+
+   /* public function findOneBySomeField($value)
+    {
+        return $this->createQueryBuilder('s')
+            ->andWhere('s.exampleField = :val')
+            ->setParameter('val', $value)
+            ->getQuery()
+            ->getOneOrNullResult()
+            ;
+    }*/
+
     /*
     public function findOneBySomeField($value): ?Seccion
     {

@@ -32,6 +32,18 @@ class DetalleRepository extends ServiceEntityRepository
             ->getResult()
             ;
     }
+
+    public function ArticulosPorVendedor($value)
+    {
+        return $this->createQueryBuilder('d')
+            ->select('d.id_articulo, sum(d.total),sum(d.cantidad)')
+            ->andWhere('d.id_vendedor = :val')
+            ->setParameter('val', $value)
+            ->groupBy('d.id_articulo')
+            ->getQuery()
+            ->getResult();
+
+    }
 /*
     // /**
     //  * @return Detalle[] Returns an array of Detalle objects

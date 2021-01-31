@@ -51,6 +51,18 @@ class ItemsRepository extends ServiceEntityRepository
             ->getSingleScalarResult();
 
     }
+    /*public function ComprobarItemEnCarro($carroId,$articuloId): ?int
+    {
+        return $this->createQueryBuilder('i')
+            ->select('count(i.id)')
+            ->andWhere('i.id_carro = :val')
+            ->setParameter('val', $carroId)
+            ->andWhere('i.id_articulo = :val')
+            ->setParameter('val', $articuloId)
+            ->getQuery()
+            ->getOneOrNullResult();
+
+    }*/
 
 
     // /**

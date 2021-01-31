@@ -24,37 +24,39 @@
                     , {{ app.user.direccion.pais|capitalize}}.</h4>
 
             </div>
-            {{ dump(app.user) }}
+
             <hr>
-            <div class="border border-dark">
-                <table class="table text-center ">
+            <div class="">
+                <table class="table table-hover text-center ">
                     <thead>
-                        <tr class="table-dark text-white ">
-                            <th>Cantidad</th>
-                            <th>Articulo</th>
-                            <th>Precio</th>
-                            <th>Total</th>
-                            <th>Vendedor</th>
+                        <tr class="table-dark text-white w-75 ">
+                            <th class="col">Cantidad</th>
+                            <th class="col" >Articulo</th>
+                            <th class="col d-none d-sm-block ">Precio</th>
+                            <th class="col" >Total</th>
+                            <th class="col d-none d-sm-block" >Vendedor</th>
                         </tr>
 
                     </thead>
                     <tbody>
                     {% for detalle in detalles %}
-                        <tr>
-                            <td>{{ detalle.cantidad }}</td>
-                            <td><a href="{{ path("articulo_show",{'id': detalle.articuloId}) }}"  class="text-decoration-none text-dark"
+
+                        <tr >
+                            <td class="col">{{ detalle.cantidad }}</td>
+                            <td class="col"><a href="{{ path("articulo_show",{'id': detalle.articuloId}) }}"  class="text-decoration-none text-dark"
                                    target="_blank" rel="noopener noreferrer">
                                     {{ detalle.articulo }}</a>
                             </td>
-                            <td>{{ detalle.precio }} BC</td>
+                            <td class="col d-none d-sm-block">{{ detalle.precio }} BC</td>
 
-                            <td>{{ detalle.total }} BC</td>
-                            <td><a
+                            <td class="col" >{{ detalle.total }} BC</td>
+                            <td class="col d-none d-sm-block" ><a
                                    class="text-decoration-none text-dark " target="_blank"
                                    rel="noopener noreferrer">
                                     {{ detalle.vendedor }}</a>
                             </td>
                         </tr>
+
 
                     {% endfor %}
                         <tr class="table-secondary">
@@ -64,6 +66,48 @@
                     </tbody>
                 </table>
             </div>
+
+            <hr>
+            <h3 class="text-center mb-4">Valora tus productos</h3>
+            <div class="border border-dark rounded contenedor p-4 ">
+            <form action="{{ path('valoracion') }}" method="post" onsubmit="return confirm('Estas seguro de la valoracion de el/los producto/s?');">
+                <input type="hidden" name="{{ 'idFactura' }}" value="{{ factura.id }}">
+                <input type="hidden" name="{{ 'idUsuario' }}" value="{{ app.user.id }}">
+
+                {% for detalle in detalles %}
+
+
+                    <div class="row ">
+                        <div class="col-md-10 mx-auto text-center">
+                            <label for="{{'valoracion'~ detalle.articuloId }}" class="fs-5">Producto:
+                                <a href="{{ path("articulo_show",{'id': detalle.articuloId}) }}"
+                                   class="text-dark" target="_blank" rel="noopener noreferrer"> {{ detalle.articulo }}</a>
+                                 - Valoracion:
+                                <select name="{{'valoracion'~ detalle.articuloId }}" id="">
+                                    {% for i in 0..5 %}
+                                        {% set selected = '' %}
+                                        {% if detalle.valor is same as (i) %}
+                                            {% set selected = 'selected' %}
+                                        {% endif %}
+                                        <option value="{{ i }}"{{ selected }}>{{ i }}</option>
+                                    {% endfor %}
+                                </select>
+                                - Vendedor: {{ detalle.vendedor }}.
+                            </label>
+                            <input type="hidden" name="{{ 'idValoracion'~ detalle.idValoracion }}" value="{{ detalle.idValoracion }}">
+                            <input type="hidden" name="{{ 'articuloId'~ detalle.articuloId }}" value="{{ detalle.articuloId }}">
+                            <input type="hidden" name="{{ 'vendedorId'~ detalle.articuloId }}" value="{{ detalle.idVendedor }}">
+                            <input type="hidden" name="{{ 'idDetalle'~ detalle.articuloId }}" value="{{ detalle.idDetalle }}">
+
+                        </div>
+                    </div>
+                    <br>
+                {% endfor %}
+                <div class="text-center">
+                    <button type="submit" class="btn btn-success">Enviar Valoracion</button>
+                </div>
+            </form>
+            </div>
             <div class="mt-3 mb-1">
             <a href="{{ path('perfil_usuario', {'id': app.user.id}) }}" class="text-decoration-none text-dark fs-3 ">
                 <img src="{{ asset('imagenes_articulos/arrow.png') }}" alt="Volver a mi perfil">
@@ -71,6 +115,8 @@
             </a>
             </div>
         </div>
+
+
     </div>
 
 

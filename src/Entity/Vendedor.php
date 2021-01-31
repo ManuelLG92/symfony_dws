@@ -67,7 +67,7 @@ class Vendedor
         return $this->valoracion;
     }
 
-    public function setValoracion(?int $valoracion): self
+    public function setValoracion(?float $valoracion): self
     {
         $this->valoracion = $valoracion;
 

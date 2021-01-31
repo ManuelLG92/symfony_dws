@@ -4,7 +4,7 @@
 
 {% block body %}
 
-    <div class="container contenedor rounded">
+    <div class="container contenedor rounded p-4 mb-4">
         <h2 class="mt-3">Detalles de tu cuenta</h2>
         <hr>
         <h3>Datos personales</h3>
@@ -15,22 +15,21 @@
         <input type="hidden" name="idUsuario" value="{{ usuario.id }}">
         <hr>
         <h3 class="mt-3">Tus articulos</h3>
-        <table class="table">
+        <table class="table w-100">
         <thead>
         <tr>
-            <th scope="col">#</th>
-            <th scope="col">Id Articulo</th>
-            <th scope="col">Nombre</th>
-            <th scope="col">Stock</th>
-            <th scope="col">Precio</th>
-            <th scope="col" class="text-center">Opciones</th>
 
+            <th scope="col" class="col-2">Id</th>
+            <th scope="col" class="col-2">Nombre</th>
+            <th scope="col" class="col-2">Stock</th>
+            <th scope="col" class="col-2">Precio</th>
+            <th scope="col" class="col-2">Opciones</th>
         </tr>
         </thead>
         <tbody>
         {% for index, articulo in articulos %}
             <tr>
-                <th scope="row">{{ index+1 }}</th>
+
                 <td>{{ articulo.id }}</td>
                 <td>{{ articulo.nombre }}</td>
                 <td>{{ articulo.stock }}</td>
@@ -47,7 +46,7 @@
             </tr>
         {% else %}
             <tr>
-                <td colspan="6">Aun no has creado ningun articulo, crea uno pinchando
+                <td colspan="5" class="text-center">Aun no has creado ningun articulo, crea uno pinchando
                     <a href="{{ path('articulo_new') }}"> ¡aqui!</a></td>
             </tr>
         {% endfor %}
@@ -59,41 +58,74 @@
         {% if vendedor.getNumeroVentas() == 0 %}
         <p>Aun no tienes ninguna venta.</p>
         {% else %}
-            <p>Has vendido {{ vendedor.getNumeroVentas() }} articulos.</p>
-            <p>Has vendido </p>
+            <table class="table">
+                <thead>
+                <tr>
+                    <th scope="col">Id Producto</th>
+                    <th scope="col">Unidades vendidas</th>
+                    <th scope="col">Importe total </th>
+                </tr>
+                </thead>
+                <tbody>
+
+
+            {% for index, venta in ventas %}
+                <tr>
+                    <td>
+                        <a href="{{ path('articulo_show', {'id': venta.id_articulo }) }}"
+                        class="text-decoration-none text-dark">
+                            {{ venta.id_articulo }}
+                        </a>
+                    </td>
+                    <td>{{ venta.2 }}</td>
+                    <td>{{ venta.1 }}</td>
+                </tr>
+            {% endfor %}
+                <tr>
+                    <td></td>
+                    <td><strong>{{ vendedor.getNumeroVentas() }}</strong></td>
+                    <td><strong>{{ vendedor.getImporteVentas() }}</strong></td>
+                </tr>
+                </tbody>
+
+            </table>
         {% endif %}
-        {{ dump(vendedor.getNumeroVentas()) }}
+
         <hr>
         <h3>Tus compras:</h3>
         <div class="text-center">
-            <table class="table">
+            <table class="table table-responsive">
         <thead>
             <tr>
-                <th scope="col"># </th>
-                <th scope="col">Importe</th>
-                <th scope="col">Fecha</th>
+                <th scope="col" class="col-4"># </th>
+                <th scope="col" class="col-4">Importe</th>
+                <th scope="col" class="col-4">Fecha</th>
             </tr>
         </thead>
         <tbody>
-        {% if facturas is null %}
-            <td colspan="3">Aun no has realizado ninguna compra.</td>
-
-        {% else %}
+        {% set compra = 0 %}
             {% for factura in facturas %}
                 <tr>
-                    <th scope="row" >
-                        <a href="{{ path('factura', {'id': factura.id }) }}"
+                    <th scope="row" class="col-4">
+                        <a href="{{ path('factura', {'id': factura.id, 'usuario' : usuario.id }) }}"
                            class="text-decoration-none text-dark" target="_blank">
                             {{ factura.id }}
                         </a>
                     </th>
-                    <td>{{ factura.importe }} BC</td>
-                    <td>{{ factura.fecha|date("m/d/Y") }}</td>
+                    <td class="col-4" >{{ factura.importe }} BC</td>
+                    <td class="col-4" >{{ factura.fecha|date("m/d/Y") }}</td>
+                    {% set compra = compra + factura.importe %}
                 </tr>
-            <p></p>
+            {% else %}
+                <tr>
+                    <td colspan="3" class="text-center">aun no tienes compras</td>
+                </tr>
             {% endfor %}
-
+        {% if compra > 0 %}
+            <tr class="table-secondary"><td colspan="3" class="text-center">Has gastado {{ compra }} BC en compras.</td></tr>
         {% endif %}
+
+
         </tbody>
         </table>
         </div>
