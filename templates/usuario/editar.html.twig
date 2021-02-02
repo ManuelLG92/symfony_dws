@@ -4,10 +4,10 @@
 
 {% block body %}
 
-    <div class="container">
+    <div class="container contenedor rounded p-3">
         <h3>Editar usuario</h3>
         {% include 'usuario/_formulario.html.twig' with
-            {'accion' : path('editar_usuario_get', { 'id' : usuario.id}),
+            {'accion' : path('editar_usuario_post', { 'id' : usuario.id}),
                 'btn_form' : 'Editar' ,
                 modo : modo } %}
     </div>

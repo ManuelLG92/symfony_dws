@@ -148,11 +148,11 @@ $(document).ready(function() {
             alert("Solo se aceptan imagenes tipo: jpg,jpeg y png.")
 
         }
-        var temp = "";
+       /* var temp = "";
         temp += "<br>Filename: " + imagen.name;
         temp += "<br>Type: " + imagen.type;
         temp += "<br>Size: " + imagen.size + " bytes"
-        console.log(temp)
+        console.log(temp)*/
     })
 
 
@@ -165,7 +165,7 @@ $(document).ready(function() {
             $(selectorContador).html(longitud +"/255").addClass("text-success").removeClass("text-danger")
         }
 
-        console.log(longitud)
+
 
     }
     function validacionGeneral(campo,tipo,
@@ -227,7 +227,7 @@ $(document).ready(function() {
 
                     }
     }
-    console.log('Nombre erorr: ' + nombreError)
+    console.log('Nombre eror: ' + nombreError)
     console.log('stock erorr: ' + stockError)
     console.log('precio erorr: ' + precioError)
     console.log('seccion erorr: ' + seccionError)

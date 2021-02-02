@@ -1,0 +1,46 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Recuperar clave {% endblock %}
+
+{% block body %}
+
+    <div class="container col-10 col-md-4 contenedor p-3 rounded">
+        <form action="{{ path('nueva_clave') }}" method="post" id="reestablecer">
+
+            <h5 class="text-center mb-1">Tu email: {{ email }}</h5>
+            <label for="clave" class="mb-1">Introduce tu nueva clave</label>
+            <input type="password" class="form-control" name="clave" id="clave">
+            <br>
+            <label for="clave2">Confirma tu clave: </label>
+            <input type="password" class="form-control" name="clave2" id="clave2">
+            <input type="hidden" name="idToken" value="{{ token.getId() }}">
+            <input type="hidden" name="idUsuario" value="{{ token.getIdUsuario() }}">
+            <div class="text-center mt-3">
+                <input type="button" id="enviar" class="btn btn-success" value="Reestablecer contraseña">
+            </div>
+            <span class="text-center text-danger errorClave"></span>
+        </form>
+    </div>
+    <script>
+        $(document).ready(function () {
+            clavesIguales= false
+
+        $('#clave').on("keyup change",function () {
+            comparaClave($('#clave').val(),$('#clave2').val())
+            clavesIguales ? $('.errorClave').html('Coinciden las claves').addClass('text-success').removeClass('text-danger') : $('.errorClave').html('Las claves no coinciden o tienen menos de 8 caracteres').addClass('text-danger')
+        })
+
+        $('#clave2').on("keyup change", ()=>{
+            comparaClave($('#clave').val(),$('#clave2').val())
+            clavesIguales ? $('.errorClave').html('Coinciden las claves').addClass('text-success').removeClass('text-danger') : $('.errorClave').html('Las claves no coinciden o tienen menos de 8 caracteres').addClass('text-danger')
+        })
+            $('#enviar').click(()=>{
+                clavesIguales ? $('#reestablecer').submit() : alert("Campos no validos")
+            })
+        })
+        function comparaClave(clave1,clave2) {
+            clave1 === clave2 && clave1.length > 7? clavesIguales = true : clavesIguales = false
+        }
+
+    </script>
+{% endblock %}

@@ -1,56 +1,68 @@
-
-<form action="{{ accion }}" method="POST" class="row" autocomplete="off">
+<form action="{{ accion }}" method="POST" class="row" autocomplete="off" id="formulario">
+    <input type="hidden" name="idUsuario" value="{{ usuario.id }}">
     <div class="col-md-4">
         <label for="nombre" class="form-label">Nombre</label>
-        <input type="text" name="nombre" class="form-control" id="nombre" value="{{ usuario.nombre }}" required>
+        <input type="text" name="nombre" class="form-control" id="nombre" value="{{ usuario.nombre }}" maxlength="30" required>
+        <small class="nombreError"></small>
     </div>
     <div class="col-md-4">
         <label for="apellido" class="form-label">Apellidos</label>
-        <input type="text" name="apellido" class="form-control" id="apellido" value="{{ usuario.apellido }}" required>
+        <input type="text" name="apellido" class="form-control" id="apellido" value="{{ usuario.apellido }}" maxlength="50" required>
+        <small class="apellidoError"></small>
     </div>
     <div class="col-md-4">
         <label for="telefono" class="form-label">Telefono</label>
-        <input type="text" name="telefono" class="form-control" id="telefono" value="{{ usuario.telefono }}">
+        <input type="text" name="telefono" class="form-control" id="telefono" value="{{ usuario.telefono }}" maxlength="12">
+        <small class="telefonoError"></small>
     </div>
     <h3>Direccion</h3>
     <div class="col-md-3">
         <label for="via" class="form-label">Via</label>
-        <input type="text" name="via" class="form-control" id="via" value="{{ direccion.via }}" required>
+        <input type="text" name="via" class="form-control" id="via" value="{{ direccion.via }}" maxlength="30" required>
+        <small class="viaError"></small>
     </div>
     <div class="col-md-3">
         <label for="nombre_via" class="form-label">Nombre via</label>
-        <input type="text" name="nombre_via" class="form-control" id="nombre_via" value="{{ direccion.getNombreVia() }}" required>
+        <input type="text" name="nombre_via" class="form-control" id="nombre_via" value="{{ direccion.getNombreVia() }}" maxlength="50" required>
+        <small class="nombreViaError"></small>
     </div>
 
     <div class="col-md-2">
         <label for="numero" class="form-label">Numero</label>
-        <input type="text" name="numero" class="form-control" id="numero" value="{{ direccion.numero }}" required>
+        <input type="text" name="numero" class="form-control" id="numero" value="{{ direccion.numero }}" maxlength="5" required>
+        <small class="numeroError"></small>
     </div>
     <div class="col-md-2">
         <label for="piso" class="form-label">Piso</label>
-        <input type="text" name="piso" class="form-control" id="piso" value="{{ direccion.piso }}">
+        <input type="text" name="piso" class="form-control" id="piso" value="{{ direccion.piso }}" maxlength="10">
+        <small class="pisoError"></small>
     </div>
     <div class="col-md-2">
         <label for="puerta" class="form-label">Puerta</label>
-        <input type="text" name="puerta" class="form-control" id="puerta" value="{{ direccion.puerta }}">
+        <input type="text" name="puerta" class="form-control" id="puerta" value="{{ direccion.puerta }}" maxlength="10">
+        <small class="puertaError"></small>
     </div>
 
     <div class="col-md-3">
         <label for="ciudad" class="form-label">Ciudad</label>
-        <input type="text" name="ciudad" class="form-control" id="ciudad" value="{{ direccion.ciudad }}" required>
+        <input type="text" name="ciudad" class="form-control" id="ciudad" value="{{ direccion.ciudad }}" maxlength="50" required>
+        <small class="ciudadError"></small>
     </div>
 
     <div class="col-md-3">
         <label for="estado" class="form-label">Estado</label>
-        <input type="text" name="estado" class="form-control" id="estado" value="{{ direccion.estado }}" required>
+        <input type="text" name="estado" class="form-control" id="estado" value="{{ direccion.estado }}" maxlength="50" required>
+        <small class="estadoError"></small>
     </div>
     <div class="col-md-2">
         <label for="cp" class="form-label">CP</label>
-        <input type="text" name="cp" class="form-control" id="cp" value="{{ direccion.cp }}" required>
+        <input type="text" name="cp" class="form-control" id="cp" value="{{ direccion.cp }}" maxlength="10" required>
+        <small class="cpError"></small>
     </div>
     <div class="col-md-3">
         <label for="pais" class="form-label">Pais</label>
-        <input type="text" name="pais" class="form-control" id="pais" value="{{ direccion.pais }}" required>
+        <input type="text" name="pais" class="form-control" id="pais" value="{{ direccion.pais }}" maxlength="50" required>
+        <small class="paisError"></small>
     </div>
 {% if modo == "crear" %}
     <h3>Datos de acceso</h3>
@@ -58,27 +70,33 @@
         <label for="email" class="form-label">Email</label>
         <div class="input-group">
             <span class="input-group-text" id="inputGroupPrepend2">@</span>
-            <input type="email" name="email" class="form-control" id="email"  aria-describedby="inputGroupPrepend2" required>
+            <input type="email" name="email" class="form-control" id="email"  aria-describedby="inputGroupPrepend2" maxlength="70" required>
+
         </div>
+        <small class="emailError"></small>
     </div>
     <div class="col-md-4">
         <label for="clave" class="form-label">Clave</label>
-        <input type="password" name="clave" class="form-control" id="clave" autocomplete="off" required>
+        <input type="password" name="clave" class="form-control" id="clave" autocomplete="off" maxlength="32" required>
+        <small class="claveError"></small>
     </div>
     <div class="col-12">
         <div class="form-check">
-            <input class="form-check-input" type="checkbox" value="term" id="term" required>
+            <input class="form-check-input" type="checkbox" value="term" id="term" name="term" required>
             <label class="form-check-label" for="term">
                 Acepto los terminos y condiciones
             </label>
+            <br>
+            <small class="checkError"></small>
         </div>
     </div>
     {% endif %}
 
-    <div class="col-12 mt-3">
-        <button class="btn btn-primary" type="submit">{{ btn_form|default('Registrarme')}}</button>
+    <div class="col-12 mt-3 text-center">
+        <input type="button" id="enviar" class="btn btn-lg btn-success" value="{{ btn_form|default('Registrarme')}}">
+{#        <button class="btn btn-primary" type="submit">{{ btn_form|default('Registrarme')}}</button>#}
     </div>
 
-
 </form>
+<script src="{{ asset('js/validationRegistro.js') }}"></script>
 

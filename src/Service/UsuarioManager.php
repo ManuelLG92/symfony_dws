@@ -52,6 +52,19 @@ class UsuarioManager
         return false;
 
     }
+
+    public function compruebaCamposUsuarioEditar($nombre,$apellido)
+    {
+        if ($nombre != null && $apellido != null){
+            if (!empty($nombre) && !empty($apellido)){
+                return true;
+            } else {
+                return false;
+            }
+        }else {
+            return false;
+        }
+    }
     public function compruebaCamposDireccionValidate(Direccion $direccion) {
     $errores = $this->validator->validate($direccion);
     return $errores;
@@ -72,6 +85,7 @@ class UsuarioManager
         $this->em->persist($banco);
         $this->em->flush();
     }
+
 
     public function ChequeaClave($clave, $claveUsuarioHashed)
     {

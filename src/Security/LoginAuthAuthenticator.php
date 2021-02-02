@@ -70,6 +70,7 @@ class LoginAuthAuthenticator extends AbstractFormLoginAuthenticator
 
         if (!$user) {
             // fail authentication with a custom error
+
             throw new UsernameNotFoundException('Email invalido.');
         }
 

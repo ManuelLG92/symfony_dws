@@ -6,7 +6,7 @@
             <div class="d-inline-flex justify-content-start">
             <a class="navbar-brand text-white fs-3" href="/">Buy-m3</a>
             <a class="nav-link text-white fs-5 " aria-current="page" href="{{ path('about') }}">Nosotros</a>
-            <a class="nav-link text-white fs-5 " aria-current="page" href="#">Contacto</a>
+            <a class="nav-link text-white fs-5 " aria-current="page" href="{{ path('contacto') }}">Contacto</a>
         </div>
             {% if app.user %}
 
@@ -18,11 +18,18 @@
                         <span>
                             <a href="{{ path('carro_get',{ 'id' : app.user.id } ) }}" class="text-decoration-none text-success ">
 
-                                <img src="{{ asset('cesta.png') }}" alt="">
-                            {% if app.session.get('carro') > 0%}
-                                 <span id="nroItems" class="position-absolute top-0 start-100 translate-middle badge rounded-pill text-white mt-1">{{ app.session.get('carro') }}<span class="visually-hidden">Articulos en el carro</span></span>
+                                <img src="{{ asset('cesta.png') }}" alt="Cesta de compra">
+                            {% if app.session.get('carro')%}
+                                 <span id="nroItems" class="position-absolute top-0 start-100 translate-middle badge rounded-pill text-white mt-1">
+                                     {{ app.session.get('carro') }}
+                                 </span>
+                                     <span class="visually-hidden">Articulos en el carro</span>
+                            {% else %}
+                                <span id="nroItems" class="position-absolute top-0 start-100 translate-middle badge rounded-pill text-white mt-1">
+                                     0
+                                 </span>
 
-                            {% endif %}
+                                {% endif %}
                                 </a>
                         </span>
 
@@ -50,19 +57,27 @@
                                 Registro
                             </a>
                         </span>
-                        {#<span>Registro</span>
-                        <ul class="navbar-nav">
-                            <li class="nav-item ">
-                                <a class="nav-link" href="{{ path('app_login') }}">Login</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="{{ path('nuevo_usuario') }}">Registro</a>
-                        </li></ul>#}
+
 
                     </div>
                 {% endif %}
 
+
         </div>
 
         </nav>
+</div>
+<div class="container text-center mt-3">
+    {% for flash_message in app.session.flashbag.get('fail') %}
+        <div class="alert alert-danger alert-dismissible fade show text-center" role="alert">
+            {{ flash_message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    {% endfor %}
+    {% for flash_message in app.session.flashbag.get('success') %}
+        <div class="alert alert-success alert-dismissible fade show text-center" role="alert">
+            {{ flash_message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    {% endfor %}
 </div>

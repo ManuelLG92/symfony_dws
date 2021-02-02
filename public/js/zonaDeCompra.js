@@ -12,12 +12,12 @@ $(document).ready(function () {
     }
 
 
+
 })
 var erroresCampos = {};
 var errorCompra = false;
 
 function actualizaCantidad(inputCantidad,precio,stock, inputTotal, inputHiden) {
-
 
     cantidad = $(inputCantidad).val()
     if (cantidad < 1 || isNaN(cantidad) || cantidad > stock ||
@@ -53,20 +53,22 @@ function actualizaCantidad(inputCantidad,precio,stock, inputTotal, inputHiden) {
     //console.log($(inputCantidad).prop("name"))
 }
 function compruebaErrores() {
-    //algunError = false;
-    algunError = erroresCampos.includes(true);
-    /*Object.values(erroresCampos).forEach(val => {
-       // console.log(val)
+    algunError = false;
+    console.log(erroresCampos)
+   // algunError = erroresCampos.includes(true);
+    /**/Object.values(erroresCampos).forEach(val => {
+        console.log(val)
         if(val === true){
             algunError = true;
             return true
         }
-    });*/
+    });
     if (algunError){
         alert("Indica cantidades correctas, si no quieres algun articulo " +
             "pincha el boton eliminar")
-        console.log("hay algun error")
+       // console.log("hay algun error")
     } else {
+       // console.log("no hay ningun error")
         $('#myFormulario').submit()
     }
 }

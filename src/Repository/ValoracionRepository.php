@@ -54,7 +54,8 @@ class ValoracionRepository extends ServiceEntityRepository
             ->getSingleScalarResult()
             ;
     }
-    public function findValoracionByClientAndArticulo($clienteId,$articuloId)
+
+    public function findValoracionByClientArticuloAndFacturaId($clienteId,$articuloId,$facturaId)
     {
         return $this->createQueryBuilder('v')
 
@@ -62,10 +63,14 @@ class ValoracionRepository extends ServiceEntityRepository
             ->setParameter('val', $articuloId)
             ->andWhere('v.id_cliente = :val2')
             ->setParameter('val2', $clienteId)
+            ->andWhere('v.numero_factura = :val3')
+            ->setParameter('val3', $facturaId)
             ->getQuery()
             ->getOneOrNullResult()
             ;
     }
+
+
 
    /* public function findValoracionByIdAndArticuloId($id,$articuloId)
     {

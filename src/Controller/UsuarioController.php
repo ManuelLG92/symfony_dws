@@ -10,6 +10,7 @@ use App\Repository\ArticuloRepository;
 use App\Repository\DetalleRepository;
 use App\Repository\DireccionRepository;
 use App\Repository\FacturaRepository;
+use App\Repository\RecuperacionRepository;
 use App\Repository\UsuarioRepository;
 use App\Repository\BancoRepository;
 use App\Repository\ValoracionRepository;
@@ -17,6 +18,7 @@ use App\Repository\VendedorRepository;
 use App\Service\UsuarioManager;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityManagerInterface;
+use phpDocumentor\Reflection\Types\This;
 use \Symfony\Component\HttpFoundation\Request;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
@@ -58,17 +60,12 @@ class UsuarioController extends AbstractController
             ->getSingleScalarResult();
         $numeroPaginas = 1;
         $totalElementos > 0 ? $numeroPaginas=ceil($totalElementos/self::ELEMENTOS_POR_PAGINA) : $numeroPaginas = 1;
-        /*if ($totalElementos > 1) {
-            $numeroPaginas = ceil($totalElementos/self::ELEMENTOS_POR_PAGINA);
-        }*/
+
         if ($pagina>$numeroPaginas) {
             $pagina = $numeroPaginas;
             return $this->redirect($ruta.$pagina, 302);
         }
-        /*session_start();
-        dump(session_id());
-        session_destroy();
-        dump(session_id());*/
+
 
         return $this->render('usuario/usuarios.html.twig', [
             'usuarios' => $usuarioRepository->buscarUsuarios($pagina,self::ELEMENTOS_POR_PAGINA),
@@ -271,11 +268,14 @@ class UsuarioController extends AbstractController
      * @Route("/nuevo", methods={"GET"}, name="nuevo_usuario_get")
      */
     public function crearUsuarioGet()
-    {
+    {   /*if ($this->getUser()){
+            return $this->redirectToRoute('index');
+        }*/
         $usuario = new Usuario();
         $direccion = new Direccion();
         $banco = new Banco();
         $modo = 'crear';
+
         return $this->render('usuario/nuevo.html.twig', [
             'usuario' => $usuario,
             'direccion' => $direccion,
@@ -291,8 +291,9 @@ class UsuarioController extends AbstractController
      */
     public function EditarUsuarios(int $id,
    UsuarioRepository $usuarioRepository, DireccionRepository $direccionRepository,
-    BancoRepository $bancoRepository): Response
+    BancoRepository $bancoRepository, Request $request): Response
     {
+        if ($this->chequeaUsuarioEnSesion($request,$id)){
         $usuario = new Usuario();
         $direccion = new Direccion();
         $usuario = $usuarioRepository->find($id);
@@ -304,6 +305,79 @@ class UsuarioController extends AbstractController
             'direccion' => $direccion,
             'modo' => $modo,
         ]);
+    } else {
+            return $this->redirectToRoute('index');
+        }
+    }
+
+
+    /**
+     * @Route("/editar/{id<\d+>}", methods={"POST"}, name="editar_usuario_post")
+     */
+    public function actualizarUsuario(int $id, UsuarioRepository $usuarioRepository,
+                                      DireccionRepository $direccionRepository,
+                                      UsuarioManager $usuarioManager,Request $request)
+    {
+        if ($this->chequeaUsuarioEnSesion($request,$id)){
+            $idUsuarioSolicitud = trim($request->request->get('idUsuario'));
+            if ($this->getUser()->getId() == (int)$idUsuarioSolicitud){
+                $em = $this->getDoctrine()->getManager();
+                $usuarioModificar = $usuarioRepository->find($idUsuarioSolicitud);
+                $nombre = trim($request->request->get('nombre'));
+                $apellido = trim($request->request->get('apellido'));
+                $telefono = trim($request->request->get('telefono'));
+                $via = trim($request->request->get('via'));
+                $nombre_via = trim($request->request->get('nombre_via'));
+                $numero = trim($request->request->get('numero'));
+                $piso = trim($request->request->get('piso'));
+                $puerta = trim($request->request->get('puerta'));
+                $ciudad = trim($request->request->get('ciudad'));
+                $estado = trim($request->request->get('estado'));
+                $cp = trim($request->request->get('cp'));
+                $pais = trim($request->request->get('pais'));
+
+                $verificaDatosPersonales = $usuarioManager->
+                compruebaCamposUsuarioEditar($nombre, $apellido);
+
+                $verificaDatosDireccion = $usuarioManager->
+                compruebaCamposDireccion($via,$nombre_via,$numero,$ciudad,$estado,$cp,$pais);
+                if ($verificaDatosPersonales && $verificaDatosDireccion){
+                    $usuarioModificar->setNombre($nombre);
+                    $usuarioModificar->setApellido($apellido);
+                    $usuarioModificar->setTelefono($telefono);
+
+                    $direccionModificar = $usuarioModificar->getDireccion();
+                    $direccionModificar->setVia($via);
+                    $direccionModificar->setNombreVia($nombre_via);
+                    $direccionModificar->setNumero($numero);
+                    if ($piso != null && !empty($piso) ) {
+                        $direccionModificar->setPiso($piso);
+                    }
+                    if ($puerta != null && !empty($puerta) ) {
+                        $direccionModificar->setPuerta($puerta);
+                    }
+                    $direccionModificar->setCiudad($ciudad);
+                    $direccionModificar->setEstado($estado);
+                    $direccionModificar->setCp($cp);
+                    $direccionModificar->setPais($pais);
+                    $em->persist($direccionModificar);
+                    $em->flush();
+                    $em->persist($usuarioModificar);
+                    $em->flush();
+                    $this->addFlash('success','Usuario editado correctamente.');
+                    return  $this->redirectToRoute('index');
+                }
+                $this->addFlash('fail','Hemos encontrado datos no validos en el formulario, Intentalo de nuevo.');
+                return  $this->redirectToRoute('index');
+
+            } else {
+                $this->addFlash('fail',"Solo puedes editar tu perfil");
+                return $this->redirectToRoute('index');
+            }
+        } else {
+            $this->addFlash('fail',"Debes iniciar sesion para editar tu perfil");
+            return $this->redirectToRoute('app_login');
+        }
     }
 
 
@@ -319,7 +393,6 @@ class UsuarioController extends AbstractController
         VendedorRepository $vendedorRepository,
         FacturaRepository $facturaRepository,
         DetalleRepository $detalleRepository,
-
         Request $request): Response
     {
         if ($this->chequeaUsuarioEnSesion($request,$id)){
@@ -361,6 +434,56 @@ class UsuarioController extends AbstractController
         } else {
             return $this->redirectToRoute('index');
         }
+
+    }
+
+    /**
+     * @Route("/nueva-clave", methods={"POST"}, name="nueva_clave")
+     */
+    public function reestablecerClave(Request $request, UsuarioRepository $usuarioRepository
+                                    ,RecuperacionRepository $recuperacionRepository,
+                                    UsuarioManager $usuarioManager)
+    {
+        if (!$this->getUser()) {
+        $idUsuario = trim($request->request->get('idUsuario'));
+        $idToken = trim($request->request->get('idToken'));
+        $clave = trim($request->request->get('clave'));
+        $clave2 = trim($request->request->get('clave2'));
+        if (strcmp($clave,$clave2) == 0){
+            $entityManager = $this->getDoctrine()->getManager();
+            $usuario = $usuarioRepository->find($idUsuario);
+            $usuario->setClave($usuarioManager->encriptarClave($clave));
+            $recuperacionActual = $recuperacionRepository->find($idToken);
+            try {
+                $entityManager->persist($usuario);
+                $entityManager->flush();
+                $entityManager->remove($recuperacionActual);
+                $entityManager->flush();
+            } catch(\Exception $e){
+                return $this->json (['error' => $e,
+                    ]);
+            }
+            $this->addFlash('success',"Clave cambiada exitosamente");
+            return $this->redirectToRoute('app_login');
+            /*return $this->json (['respuesta' => $usuario->getClave(),
+                'recuperacion' => $recuperacionActual]);
+            $response = new Response();
+            return $response->setContent(json_encode([
+                'usuario' => $idUsuario,
+                'token' => $idToken,
+            ]));*/
+
+        } else {
+            $response = new Response();
+            return $response->setContent(json_encode([
+                'nada' => 'nada',
+
+            ]));
+        }
+        } else {
+            return $this->redirectToRoute('index');
+        }
+
 
     }
 
@@ -449,6 +572,7 @@ class UsuarioController extends AbstractController
             return false;
         }
     }
+
 
 
 

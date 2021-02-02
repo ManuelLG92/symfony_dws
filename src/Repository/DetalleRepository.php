@@ -44,6 +44,17 @@ class DetalleRepository extends ServiceEntityRepository
             ->getResult();
 
     }
+
+    public function findVentasByArticuloId($value)
+    {
+        return $this->createQueryBuilder('d')
+            ->select('count(d.id)')
+            ->andWhere('d.id_articulo = :val')
+            ->setParameter('val', $value)
+            ->getQuery()
+            ->getSingleScalarResult()
+            ;
+    }
 /*
     // /**
     //  * @return Detalle[] Returns an array of Detalle objects

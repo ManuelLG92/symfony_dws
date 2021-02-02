@@ -1,0 +1,38 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Recuperar clave {% endblock %}
+
+{% block body %}
+
+    <div class="container col-10 col-md-4 contenedor p-3 rounded">
+
+        <form action="{{ path('datos_recuperar_clave') }}" method="post" id='recuperarClaveForm'>
+            <h1 class="h3 mb-4 font-weight-normal text-center">Recuperar clave </h1>
+            <hr>
+            <label for="inputEmail" class="mb-1">Introduce el email registrado:</label>
+            <input type="email" name="email" id="email" class="form-control" required autofocus>
+            <small class="errorEmail"></small>
+            <br>
+            <div class="text-center mt-3">
+                <input type="button" value="Recuperar clave" class="btn btn-lg btn-success" id="recuperar">
+            </div>
+        </form>
+    </div>
+    <script>
+        $(document).ready(function () {
+            emailValido= false
+        $('#email').on("keyup change",function () {
+        validarEmail($('#email').val()) ? emailValido = true : emailValido= false
+            emailValido ? $('.errorEmail').html('Email valido').addClass('text-success').removeClass('text-danger') : $('.errorEmail').html('Introduce un email valido').addClass('text-danger')
+        })
+
+        $('#recuperar').click(()=>{
+            emailValido ? $('#recuperarClaveForm').submit() : alert('Email no Valido')
+        })
+        })
+        function validarEmail(email) {
+            var re = /\S+@\S+\.\S+/;
+            return re.test(email);
+        }
+    </script>
+{% endblock %}

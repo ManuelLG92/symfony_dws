@@ -19,7 +19,6 @@ class SecurityLoginController extends AbstractController
     {
         if ($this->getUser()) {
         return $this->redirectToRoute('index');
-
         }
 
         // get the login error if there is one
@@ -36,6 +35,9 @@ class SecurityLoginController extends AbstractController
      */
     public function logout(Request $request)
     {
+        if (!$this->getUser()) {
+            return $this->redirectToRoute('app_login');
+        }
         $session = $request->getSession();
         $session->remove('carro');
         throw new \LogicException('This method can be blank - it will be intercepted by the logout key on your firewall.');

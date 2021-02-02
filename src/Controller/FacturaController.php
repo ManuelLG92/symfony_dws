@@ -37,7 +37,7 @@ class FacturaController extends AbstractController
                     $idValoracion = 0 ;
 
                     if ($valoracionArticulo = $valoracionRepository->
-                    findValoracionByClientAndArticulo($usuario,$articulo->getId())){
+                    findValoracionByClientArticuloAndFacturaId($usuario,$articulo->getId(),$facturaSolicitada->getId())){
                         $valoracionArticuloValor = $valoracionArticulo->getValor();
                         $idValoracion = $valoracionArticulo->getId();
                     }

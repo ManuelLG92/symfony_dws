@@ -35,6 +35,9 @@
 
         </div>
     </form>
+        {% if error %}
+            <p>Si olvidaste tu contraseña <a href="#">Pincha aqui</a></p>
+        {% endif %}
     </div>
     <script src="{{ asset('js/loginValidation.js') }}"></script>
 {% endblock %}

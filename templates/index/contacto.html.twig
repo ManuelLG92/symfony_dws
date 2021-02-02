@@ -1,0 +1,110 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Nosotros{% endblock %}
+{% block body %}
+    <div class="container rounded contenedor p-3">
+        <div class="col-md-6 mx-auto border border-dark p-3">
+        <div class="row">
+        <form action="{{ path('contacto_post') }}" method="post" id="formularioContacto">
+            <p id="h"></p>
+            <div class="mb-3">
+                <label for="nombre" class="form-label">Nombre <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" id="nombre" name="nombre" placeholder="Ej: Juan" maxlength="10" required autofocus>
+                <div><span class="nombreError"></span></div>
+            </div>
+
+            <div class="mb-3">
+                <label for="email" class="form-label">Email <span class="text-danger">*</span></label>
+                <input type="email" class="form-control" id="email" name="email" placeholder="Ej: nombre@dom.com" maxlength="50" required>
+                <span class="emailError"></span>
+            </div>
+
+            <div class="mb-3">
+                <label for="asunto" class="form-label">Asunto <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" id="asunto" name="asunto" placeholder="Ej: Informacion" maxlength="30" required>
+                <span class="asuntoError"></span>
+            </div>
+
+            <div class="mb-3">
+                <label for="descripcion" class="form-label">Descripcion <span class="text-danger">*</span></label>
+                <textarea class="form-control" id="descripcion"  name="descripcion" rows="3" maxlength="255" required></textarea>
+                <div><span class="descripcionError"></span></div>
+
+            </div>
+
+            <div class="text-center">
+                <input type="button" class="btn btn-success" value="Enviar" id="enviar">
+            </div>
+            <p class="text-danger text-center mt-3">
+                <span class="text-danger">*</span> Todos los campos son obligatorios
+                <span class="text-danger">*</span></p>
+        </form>
+        </div>
+        </div>
+    </div>
+    <script>
+        $(document).ready(function () {
+        nombreError = true
+        emailError = true
+        asuntoError = true
+        descripcionError = true
+
+
+        $('#nombre').on('keyup change', function () {
+            $('#nombre').val().length > 1 ? nombreError = false : nombreError = true;
+            mensajeError(nombreError,".nombreError","Nombre","2","30");
+
+        })
+        $('#asunto').on('keyup change', function () {
+            $('#asunto').val().length > 1 ? asuntoError = false : asuntoError = true;
+            mensajeError(asuntoError,".asuntoError","Asunto","2","30");
+        })
+
+        $('#email').on('keyup change', function () {
+            validarEmail($('#email').val()) ? emailError = false : emailError = true;
+            mensajeEmailError(emailError,".emailError")
+        })
+        $('#descripcion').on('keyup change', function () {
+            $('#descripcion').val().length > 10 || $('#descripcion').val() < 266  ? descripcionError = false : descripcionError = true;
+            mensajeError(descripcionError,".descripcionError","Descripcion","10","255");
+        })
+
+
+        function validarEmail(email) {
+            var re = /\S+@\S+\.\S+/;
+            return re.test(email);
+        }
+        function mensajeError(error, selectorValidacion, nombre, minimo, maximo ) {
+            if (error){
+                        $(selectorValidacion).html(
+                            "El " + nombre + " debe ser minimo " + minimo +
+                            " y maximo " + maximo).addClass("text-danger");
+
+                } else {
+                $(selectorValidacion).html(
+                    nombre + " valid@.").addClass("text-success").removeClass("text-danger");
+            }
+        }
+
+        function mensajeEmailError (error, selectorValidacion) {
+            if (error){
+                $(selectorValidacion).html(
+                    "El Email debe tener formato valido").addClass("text-danger");
+
+            } else {
+                $(selectorValidacion).html(
+                    "Email valido.").addClass("text-success").removeClass("text-danger");
+            }
+        }
+
+            $('#enviar').click(()=>{
+                if (!nombreError && !asuntoError && !emailError && !descripcionError){
+                    $('#formularioContacto').submit()
+                } else {
+                    alert("valida todos los campos")
+                }
+            })
+
+        })
+    </script>
+{% endblock %}

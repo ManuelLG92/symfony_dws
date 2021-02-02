@@ -6,8 +6,10 @@ use App\Entity\Articulo;
 use App\Entity\Usuario;
 use App\Form\ArticuloType;
 use App\Repository\ArticuloRepository;
+use App\Repository\DetalleRepository;
 use App\Repository\SeccionRepository;
 use App\Repository\UsuarioRepository;
+use App\Repository\ValoracionRepository;
 use App\Service\SecurityManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -282,12 +284,7 @@ class ArticuloController extends AbstractController
     public function chequeaUsuarioLogueado(Request $request): bool
     {
         if( $request->getSession() && $this->getUser() != null) {
-
                 return true;
-                /*if ($this->getUser()->getId() == $idUsuarioSolicitud){
-            } else {
-                return false;
-            }*/
         }
              else {
                 return false;
@@ -297,10 +294,23 @@ class ArticuloController extends AbstractController
     /**
      * @Route("/{id<\d+>}", name="articulo_show", methods={"GET"})
      */
-    public function show(Articulo $articulo): Response
+    public function show(Articulo $articulo,
+                         ValoracionRepository $valoracionRepository,
+                        DetalleRepository $detalleRepository): Response
     {
+        $ventasArticulo = $detalleRepository->findVentasByArticuloId($articulo->getId());
+        $estaValorado = 0;
+        $valoracion = 0;
+        if ($valoracionRepository->findValoracionItemsById($articulo->getId())){
+            $valoracion = round($valoracionRepository->findValoracionItemsById($articulo->getId()),1);
+            $estaValorado = 1;
+        }
+
         return $this->render('articulo/show.html.twig', [
             'articulo' => $articulo,
+            'ventas' => $ventasArticulo,
+            'estaValorado'=> $estaValorado,
+            'valoracion' => $valoracion,
         ]);
     }
 

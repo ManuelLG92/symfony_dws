@@ -8,6 +8,7 @@ use App\Repository\CarroRepository;
 use App\Repository\ItemsRepository;
 use App\Repository\SeccionRepository;
 use App\Repository\ValoracionRepository;
+use App\Security\Mailer;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -157,5 +158,38 @@ class IndexController extends AbstractController
     {
         return $this->render('index/about.html.twig');
     }
+
+    /**
+     * @Route(
+     *     "/contacto",
+     *     name="contacto",
+     *     methods = { "GET" }
+     *     )
+     */
+    public function contacto ()
+    {
+        return $this->render('index/contacto.html.twig');
+    }
+
+    /**
+     * @Route(
+     *     "/contacto-envio",
+     *     name="contacto_post",
+     *     methods = { "Post" }
+     *     )
+     */
+    public function enviarFormulario (Mailer $mailer,Request $request)
+    {
+        $nombre = $request->request->get('nombre');
+        $asunto = $request->request->get('asunto');
+        $email = $request->request->get('email');
+        $descripcion = $request->request->get('descripcion');
+        $html = 'Nombre: '.$nombre.'. Email: '. $email .'<br>Asunto: '.$asunto.'<br>Descripcion: '. $descripcion;
+       $mailer->enviarEmail($this->getParameter('appEmailParametro'),"Contacto formulario",$html);
+
+       return $this->redirectToRoute('index');
+    }
+
+
 
 }

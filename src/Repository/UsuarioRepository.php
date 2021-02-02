@@ -39,29 +39,21 @@ class UsuarioRepository extends ServiceEntityRepository
         return $this->paginacion($queryDql,$pagina,$elementosPagina);
     }
 
-    public function findByEmail($value)
+    public function findByEmail($value) :? Usuario
     {
         return $this->createQueryBuilder('u')
                 ->Where('u.email = :val')
                 ->setParameter('val', $value)
                 ->getQuery()
-                ->getResult();
-  /*          $qb = $em->createQueryBuilder()
-                ->select('u')
-                ->from('Userario', 'u')
-                ->where('u.email LIKE ?')
-                ->andWhere('u.is_active = 1');
-            ->andWhere('u.email = :val')*/
-
-
+                ->getOneOrNullResult();
     }
-    public function findById($value)
+    public function findById($value) :? Usuario
     {
         return $this->createQueryBuilder('u')
             ->Where('u.id = :val')
             ->setParameter('val', $value)
             ->getQuery()
-            ;
+            ->getOneOrNullResult();
     }
 
     public function findOneByIdVendedor($value): ?Usuario

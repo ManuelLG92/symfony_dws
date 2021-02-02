@@ -28,12 +28,23 @@
                 <div class="d-flex justify-content-between">
                     <h5>Precio: {{ articulo.precio }}</h5>
                     <h5 class="text-success">Stock: {{ articulo.stock }}</h5>
-
                 </div>
+                {% if ventas > 0 %}
+
+                <div class="d-flex justify-content-between">
+                    <h6>Vendidos: {{ ventas }}</h6>
+                    {% if estaValorado > 0 %}
+                        <h6 >Valoracion: {{ valoracion }}/5</h6>
+                    {% else %}
+                        <h6 >Sin valoraciones</h6>
+                    {% endif %}
+                </div>
+
+                {% endif %}
                 {% if app.user %}
                 <div class="text-center mt-3">
                     <input type="button" value="Añadir a la cesta"
-                           class="btn btn-primary w-50" id="{{ inputId }}"
+                           class="btn btn-success w-50" id="{{ inputId }}"
                            onclick="agregarAlCarro({{ app.user.id }},{{ articulo.id }},{{ inputId }} )">
                 </div>
                     {% else %}
@@ -50,46 +61,10 @@
 
             {% endif %}
 
-
         </div>
     </div>
     </div>
 
-    <table class="table">
-        <tbody>
-            <tr>
-                <th>Id</th>
-                <td>{{ articulo.id }}</td>
-            </tr>
-            <tr>
-                <th>Id_vendedor</th>
-                <td>{{ articulo.idVendedor }}</td>
-            </tr>
-            <tr>
-                <th>Nombre</th>
-                <td>{{ articulo.nombre }}</td>
-            </tr>
-            <tr>
-                <th>Descripcion</th>
-                <td>{{ articulo.descripcion }}</td>
-            </tr>
-            <tr>
-                <th>Stock</th>
-                <td>{{ articulo.stock }}</td>
-            </tr>
-            <tr>
-                <th>Precio</th>
-                <td>{{ articulo.precio }}</td>
-            </tr>
-        </tbody>
-    </table>
-    <p>{{ articulo.foto }}</p>
-
-    <a href="{{ path('index') }}">back to list</a>
-
-    <a href="{{ path('articulo_edit', {'id': articulo.id}) }}">edit</a>
-
-{#    {{ include('articulo/_delete_form.html.twig') }}#}
     <script src="{{ asset('js/carroCompra.js') }}" type="text/javascript">
     </script>
 {% endblock %}
