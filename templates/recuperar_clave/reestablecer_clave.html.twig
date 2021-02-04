@@ -14,6 +14,7 @@
             <label for="clave2">Confirma tu clave: </label>
             <input type="password" class="form-control" name="clave2" id="clave2">
             <input type="hidden" name="idToken" value="{{ token.getId() }}">
+            <input type="hidden" name="Token" value="{{ token.getToken() }}">
             <input type="hidden" name="idUsuario" value="{{ token.getIdUsuario() }}">
             <div class="text-center mt-3">
                 <input type="button" id="enviar" class="btn btn-success" value="Reestablecer contraseña">

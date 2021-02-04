@@ -17,7 +17,7 @@ use Symfony\Component\Routing\Annotation\Route;
 class FacturaController extends AbstractController
 {
     /**
-     * @Route("/factura/{id<\d+>}/{usuario<\d+>}", name="factura"
+     * @Route("/factura/{id<\d+>}/{usuario<\d+>}", name="factura", methods={"GET"}
      *     )
      */
     public function FacturaDetalle(int $id, int $usuario, SecurityManager $securityManager,
@@ -59,14 +59,23 @@ class FacturaController extends AbstractController
 
                 }
 
+                return $this->render('factura/detalle.html.twig', [
+                    'factura' => $facturaSolicitada,
+                    'detalles' => $detallesFactura,
+                    'valoraciones'=>$valoraciones,
+                ]);
+            } else {
+                $this->addFlash('fail','Factura'. $id .' no encontrada');
+                return  $this->redirectToRoute('perfil_usuario',['id'=> $usuario]);
+               // return $this->redirectToRoute('index');
+
             }
 
+        } else {
+            $this->addFlash('fail','Solo puedes ver tus facturas.');
+            return $this->redirectToRoute('index');
         }
 
-        return $this->render('factura/detalle.html.twig', [
-            'factura' => $facturaSolicitada,
-            'detalles' => $detallesFactura,
-            'valoraciones'=>$valoraciones,
-        ]);
+
     }
 }

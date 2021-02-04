@@ -10,6 +10,7 @@ use App\Repository\SeccionRepository;
 use App\Repository\ValoracionRepository;
 use App\Security\Mailer;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -24,6 +25,7 @@ class IndexController extends AbstractController
                           CarroRepository $carroRepository, ItemsRepository $itemsRepository,
                           ValoracionRepository $valoracionRepository, Request $request): Response
     {
+
         $alimentacionId = 1;
         $educacionId = 2;
         $electronicaId = 3;

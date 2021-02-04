@@ -48,7 +48,7 @@ class DetalleRepository extends ServiceEntityRepository
     public function findVentasByArticuloId($value)
     {
         return $this->createQueryBuilder('d')
-            ->select('count(d.id)')
+            ->select('sum(d.cantidad)')
             ->andWhere('d.id_articulo = :val')
             ->setParameter('val', $value)
             ->getQuery()

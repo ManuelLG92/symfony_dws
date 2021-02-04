@@ -29,7 +29,7 @@ class SecurityManager extends AbstractController
     public function chequeaPropiedadCarro(int $id, CarroRepository $carroRepository)
     {
         if($carroVista = $carroRepository->findOneByIdUsuario($id)){
-            if ($carroVista->getIdUsuario() == $id){
+            if ($carroVista->getIdUsuario() == $this->getUser()->getId()){
                 return $carroVista;
             } else {
                 return  null;

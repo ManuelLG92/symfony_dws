@@ -1,6 +1,6 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Articulo{% endblock %}
+{% block title %}{{ articulo.nombre|capitalize }}{% endblock %}
 
 {% block body %}
     {% set imgHeight = "90%" %}
@@ -26,7 +26,7 @@
                 {% set inputId = 'btn' ~ articulo.getIdSeccion() ~  articulo.id  %}
                 <p class="text-success">Disponible</p>
                 <div class="d-flex justify-content-between">
-                    <h5>Precio: {{ articulo.precio }}</h5>
+                    <h5>Precio: {{ articulo.precio }} BC</h5>
                     <h5 class="text-success">Stock: {{ articulo.stock }}</h5>
                 </div>
                 {% if ventas > 0 %}

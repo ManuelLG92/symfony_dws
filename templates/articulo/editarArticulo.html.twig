@@ -4,12 +4,15 @@
 
 {% block body %}
     {% if app.user %}
-
-    <div class="container">
+        {% set imgHeight = "50%" %}
+        {% set imgWidth = "50%" %}
+    <div class="container contenedor rounded p-3">
         <h4 class="text-center mt-4 mb-4">Hola {{ app.user.username }}!
             edita tu articulo.</h4>
         {% include 'articulo/_formulario.html.twig' with
             {'accion' : path('editar_articulo_put', { 'id' : articulo.id}),
+                'imgHeight' : imgHeight,
+                'imgWidth' : imgWidth,
                 modo : 'editar',
                 btn_form : 'Editar'} %}
     </div>

@@ -1,0 +1,57 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Cambiar clave {% endblock %}
+
+{% block body %}
+
+<div class="container col-10 col-md-4 contenedor p-3 rounded">
+    <form action="#" method="post" id="cambiarClave">
+        <label for="claveActual" class="mb-1">Introduce tu clave actual</label>
+        <input type="password" class="form-control" name="claveActual" id="claveActual">
+        <small class="claveOriginal"></small>
+        <br>
+
+        <label for="clave" class="mb-1">Introduce tu nueva clave</label>
+        <input type="password" class="form-control" name="claveNueva" id="clave">
+
+        <br>
+        <label for="clave2">Confirma tu nueva clave: </label>
+        <input type="password" class="form-control" name="claveVerificacion" id="clave2">
+
+        <span class="text-center text-danger errorClave"></span>
+
+        <input type="hidden" name="idUsuario" value="{{ id }}">
+        <div class="text-center mt-3">
+            <input type="button" id="enviar" class="btn btn-success" value="Reestablecer contraseña">
+        </div>
+
+    </form>
+</div>
+<script>
+    $(document).ready(function () {
+        clavesIguales= false
+        claveActual = false
+        $('#claveActual').on("keyup change",function () {
+            $('#claveActual').val().length > 7 && $('#claveActual').val().length<33 ? claveActual = true : claveActual = false
+            claveActual ? $('.claveOriginal').html('Longitud clave actual correcta.').addClass('text-success').removeClass('text-danger') : $('.claveOriginal').html('La clave debe tener minimo 8 caracteres y maximo 32.').addClass('text-danger')
+        })
+
+        $('#clave').on("keyup change",function () {
+            comparaClave($('#clave').val(),$('#clave2').val())
+            clavesIguales ? $('.errorClave').html('Coinciden las claves').addClass('text-success').removeClass('text-danger') : $('.errorClave').html('Las claves no coinciden o tienen menos de 8 caracteres').addClass('text-danger')
+        })
+
+        $('#clave2').on("keyup change", ()=>{
+            comparaClave($('#clave').val(),$('#clave2').val())
+            clavesIguales ? $('.errorClave').html('Coinciden las claves y longitud es correcta. ').addClass('text-success').removeClass('text-danger') : $('.errorClave').html('Las claves no coinciden o tienen menos de 8 caracteres').addClass('text-danger')
+        })
+        $('#enviar').click(()=>{
+            clavesIguales && claveActual? $('#cambiarClave').submit() : alert("Campos no validos")
+        })
+    })
+    function comparaClave(clave1,clave2) {
+        clave1 === clave2 && clave1.length > 7 && clave1.length < 33 ? clavesIguales = true : clavesIguales = false
+    }
+
+</script>
+{% endblock %}

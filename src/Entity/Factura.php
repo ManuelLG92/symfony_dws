@@ -34,7 +34,7 @@ class Factura
 
 
 
-    public function getIdCliente()
+    public function getIdCliente(): ?int
     {
         return $this->id_cliente;
     }

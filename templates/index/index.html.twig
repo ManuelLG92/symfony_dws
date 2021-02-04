@@ -8,13 +8,13 @@
     {% set imgWidth = "100" %}
 
 
-<div class="container rounded contenedor">
+<div class="container rounded contenedor p-3">
     {#{{ app.session.get('carro') }}
 
     <h3 id="it">Items en el carro {{ app.session.get('carro') }}</h3>#}
     <input type="hidden" class="carro" name="carro" value="{{ carro }}">
-    <h2 class="text-center">Bienvenido a Vuy-m3</h2>
-    <h4 class="mb-3">Articulos por secciones: </h4>
+    <h2 class="text-center mb-5">Bienvenido a Buy-m3</h2>
+
     <hr>
     {{ include('articulo/_seccion_articulo.html.twig', {'seccion': electronica,
         'imgHeight' : imgHeight,

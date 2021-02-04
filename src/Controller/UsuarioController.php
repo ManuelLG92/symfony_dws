@@ -15,6 +15,7 @@ use App\Repository\UsuarioRepository;
 use App\Repository\BancoRepository;
 use App\Repository\ValoracionRepository;
 use App\Repository\VendedorRepository;
+use App\Service\SecurityManager;
 use App\Service\UsuarioManager;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityManagerInterface;
@@ -97,6 +98,14 @@ class UsuarioController extends AbstractController
         $telefono = $request->request->get('telefono');
         $email = $request->request->get('email');
         $clave = $request->request->get('clave');
+
+        if ($emailRegistrado = $usuarioManager->compruebaEmail(trim($email))){
+            $this->addFlash('fail','El email '. $emailRegistrado->getEmail() .' ya esta registrado, puedes recuperar la clave si no la recuerdas.');
+            return $this->redirectToRoute('index');
+        } /*else {
+            $this->addFlash('success','El email disponible.');
+            return $this->redirectToRoute('index');
+        }*/
 
         $direccion = new Direccion();
         $via = $request->request->get('via');
@@ -190,7 +199,6 @@ class UsuarioController extends AbstractController
                 }
                 $usuario->setBanco($banco);
 
-
                 $usuarioManager->crearUsuario($usuario);
             }catch (\Exception $e) {
                 $usuarioError = true;
@@ -201,45 +209,48 @@ class UsuarioController extends AbstractController
 
 
             if ($direccionError || $bancoError || $usuarioError || $vendedorError){
-                $respuestaErrores = "";
+                //$respuestaErrores = "";
 
                 if (!$usuarioError) {
-                    $respuestaErrores .= "Error creando el usuario\n.";
+                  //  $respuestaErrores .= "Error creando el usuario\n.";
                     $em->remove($usuario);
                     $em->flush();
                 }
                 if (!$direccionError){
-                    $respuestaErrores .= "Error creando la direccion\n.";
+                   // $respuestaErrores .= "Error creando la direccion\n.";
                     /**/$em->remove($direccion);
                     $em->flush();
                 }
                 if (!$bancoError) {
-                    $respuestaErrores .= "Error creando el banco\n.";
+                    //$respuestaErrores .= "Error creando el banco\n.";
                     /**/ $em->remove($banco);
                     $em->flush();
                 }
 
                 if (!$vendedorError) {
-                    $respuestaErrores .= "Error creando el vendedor\n.";
+                    //$respuestaErrores .= "Error creando el vendedor\n.";
                     $em->remove($vendedor);
                     $em->flush();
                 }
-
-                $response = new Response(
+                $this->addFlash('fail','Ha ocurrido un error, no se pudo crear el usuario. Vuelve a intentarlo.');
+                return $this->redirectToRoute('nuevo_usuario_get');
+                /*$response = new Response(
                     $respuestaErrores,
                     Response::HTTP_OK,
                     ['content-type' => 'text/html']
                 );
-                return $response;
+                return $response;*/
 
             } else {
-                $respuesta = 'Usuario creado';
+                $this->addFlash('success','Usuario creado satisfactoriamente. Ya puedes iniciar sesion..');
+                return $this->redirectToRoute('app_login');
+               /* $respuesta = 'Usuario creado';
                 $response = new Response(
                     $respuesta,
                     Response::HTTP_OK,
                     ['content-type' => 'text/html']
                 );
-                return $response;
+                return $response;*/
             }
             /* $em->persist($vendedor);
              $em->flush();
@@ -250,15 +261,17 @@ class UsuarioController extends AbstractController
 
 
         } else {
-            $respuesta2 = 'No creado, comprueba usuario:  ' .$compruebaUsuario . ",Direccion " . $compruebaDireccion;
+            $this->addFlash('fail','No se pudo crear el usuario, se encontraron errores en los campos. Vuelve a intentarlo');
+
+            /*$respuesta2 = 'No creado, comprueba usuario:  ' .$compruebaUsuario . ",Direccion " . $compruebaDireccion;
             var_dump($compruebaUsuario);
             var_dump($compruebaDireccion);
             $response = new Response(
                 $respuesta2,
                 Response::HTTP_NOT_FOUND,
                 ['content-type' => 'text/html']
-            );
-            return $response;
+            );*/
+            return $this->redirectToRoute('nuevo_usuario_get');
 
         }
 
@@ -268,9 +281,11 @@ class UsuarioController extends AbstractController
      * @Route("/nuevo", methods={"GET"}, name="nuevo_usuario_get")
      */
     public function crearUsuarioGet()
-    {   /*if ($this->getUser()){
+    {
+        if ($this->getUser()){
+        $this->addFlash('fail','Debes cerrar sesion para crear un usuario.');
             return $this->redirectToRoute('index');
-        }*/
+        }
         $usuario = new Usuario();
         $direccion = new Direccion();
         $banco = new Banco();
@@ -299,13 +314,14 @@ class UsuarioController extends AbstractController
         $usuario = $usuarioRepository->find($id);
         $direccion = $direccionRepository->find($usuario->getDireccion());
         $modo = 'editar';
-        dump($usuario->getPassword());
+        //dump($usuario->getPassword());
         return $this->render('usuario/editar.html.twig', [
             'usuario' => $usuario,
             'direccion' => $direccion,
             'modo' => $modo,
         ]);
     } else {
+            $this->addFlash('fail','Si no has iniciado sesion, inicia sesion para editar tu perfil. Si ya has iniciado sesion, solo puedes editar tu perfil.');
             return $this->redirectToRoute('index');
         }
     }
@@ -431,7 +447,13 @@ class UsuarioController extends AbstractController
                 'ventas' => $VentasVendedor,
             ]);
         }
+        else {
+            $this->addFlash('fail','Ha ocurrido un error buscando este usuario, intentalo en unos minutos.');
+            return $this->redirectToRoute('index');
+        }
         } else {
+            $this->addFlash('fail','Si no has iniciado sesion, inicia sesion para ver tu perfil. Si ya has iniciado sesion, solo puedes ver tu perfil.');
+
             return $this->redirectToRoute('index');
         }
 
@@ -447,9 +469,15 @@ class UsuarioController extends AbstractController
         if (!$this->getUser()) {
         $idUsuario = trim($request->request->get('idUsuario'));
         $idToken = trim($request->request->get('idToken'));
+        $token = trim($request->request->get('Token'));
         $clave = trim($request->request->get('clave'));
         $clave2 = trim($request->request->get('clave2'));
-        if (strcmp($clave,$clave2) == 0){
+        if (!$this->compruebaLongitudClave($clave) || !$this->compruebaLongitudClave($clave2)){
+            $this->addFlash('fail','Los campos deben de la nueva clave deben ser iguales');
+            return $this->redirectToRoute('token_clave',['token' => $token]);
+        }
+
+        if ($usuarioManager->comparaNuevaclave($clave,$clave2) == 0){
             $entityManager = $this->getDoctrine()->getManager();
             $usuario = $usuarioRepository->find($idUsuario);
             $usuario->setClave($usuarioManager->encriptarClave($clave));
@@ -459,35 +487,83 @@ class UsuarioController extends AbstractController
                 $entityManager->flush();
                 $entityManager->remove($recuperacionActual);
                 $entityManager->flush();
-            } catch(\Exception $e){
-                return $this->json (['error' => $e,
-                    ]);
+                 } catch(\Exception $e){
+                $this->addFlash('fail','Ha ocurrido un eror, intentalo en unos minutos');
+                return $this->redirectToRoute('index');
             }
             $this->addFlash('success',"Clave cambiada exitosamente");
             return $this->redirectToRoute('app_login');
             /*return $this->json (['respuesta' => $usuario->getClave(),
-                'recuperacion' => $recuperacionActual]);
-            $response = new Response();
-            return $response->setContent(json_encode([
-                'usuario' => $idUsuario,
-                'token' => $idToken,
-            ]));*/
+                'recuperacion' => $recuperacionActual]);*/
 
         } else {
-            $response = new Response();
-            return $response->setContent(json_encode([
-                'nada' => 'nada',
-
-            ]));
+            $this->addFlash('fail', 'Las claves no coinciden.');
+            return $this->redirectToRoute('token_clave',['token' => $token]);
         }
         } else {
+            $this->addFlash('fail', 'Debes cerrar sesion para reestablecer uan contraseña.');
             return $this->redirectToRoute('index');
         }
+        
+    }
 
+    /**
+     * @Route("/cambiar-clave", methods={"GET"}, name="cambiar_clave_get")
+     */
+    public function cambiarClaveGet()
+    {
+        if (!$this->getUser()){
+            $this->addFlash('fail','Debes iniciar sesion para cambiar tu clave');
+            return $this->redirectToRoute('index');
+        }
+        return $this->render('usuario/cambiar_clave.html.twig',['id'=>$this->getUser()->getId()]);
+    }
+    /**
+     * @Route("/cambiar-clave", methods={"POST"}, name="cambiar_clave_post")
+     */
+    public function cambiarClavePost(UsuarioManager $usuarioManager,
+                                     UsuarioRepository $usuarioRepository,
+                                     SecurityManager $securityManager,
+                                     Request $request, EntityManagerInterface $em)
+    {
+        $claveActual = $request->request->get('claveActual');
+        $claveNueva = $request->request->get('claveNueva');
+        $claveVerificacion = $request->request->get('claveVerificacion');
+        $idUsuarioSolicitud = $request->request->get('idUsuario');
+        if ($securityManager->chequeaUsuarioSolicitud($request,$idUsuarioSolicitud)){
+            if ($usuarioSolicitud = $usuarioRepository->find($idUsuarioSolicitud)){
+                if ($usuarioManager->ChequeaClave($claveActual,$usuarioSolicitud->getPassword())){
+                    if ($usuarioManager->comparaNuevaclave($claveNueva,$claveVerificacion) == 0){
+                       $usuarioSolicitud->setClave($usuarioManager->encriptarClave($claveNueva));
+                       $em->persist($usuarioSolicitud);
+                       $em->flush();
+                       $this->addFlash('success','Clave cambiada correctamente. Recuerda la clave para la proximna vez que inicies sesion.');
+                        //return $this->redirectToRoute('app_logout');
+                        return $this->redirectToRoute('perfil_usuario',['id'=> (int)$idUsuarioSolicitud ]);
+                    } else {
+                        $this->addFlash('fail','La nueva clave debe ser igual a la verificacion, es sensible a mayusculas y minusculas');
+                        return $this->redirectToRoute('perfil_usuario',['id'=> (int)$idUsuarioSolicitud ]);
+                    }
+                } else {
+                    $this->addFlash('fail','La clave actual no es correcta. Si no la sabes, cierra sesion y recuperala desde el login.');
+                    return $this->redirectToRoute('perfil_usuario',['id'=> (int)$idUsuarioSolicitud ]);
+                }
+            }  else {
+                $this->addFlash('fail','No se pudo encontrar tu usuario, intentalo de nuevo mas tarde.');
+                return $this->redirectToRoute('perfil_usuario',['id'=> (int)$idUsuarioSolicitud ]);
+            }
+        } else {
+            $this->addFlash('fail','Tienes que iniciar sesion para cambiar tu clave, si no la sabes puedes recuperarla desde el login.');
+            return $this->redirectToRoute('app_login');
+        }
 
     }
 
-
+    public function compruebaLongitudClave(string $clave)
+    {
+        strlen($clave) > 7 && strlen($clave)<33 ? $validacionLongitud = true : $validacionLongitud = false;
+        return $validacionLongitud;
+    }
 
    /* public function login ()
     {

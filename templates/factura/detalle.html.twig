@@ -41,7 +41,7 @@
                     <tbody>
                     {% for detalle in detalles %}
 
-                        <tr >
+                        <tr>
                             <td class="col">{{ detalle.cantidad }}</td>
                             <td class="col"><a href="{{ path("articulo_show",{'id': detalle.articuloId}) }}"  class="text-decoration-none text-dark"
                                    target="_blank" rel="noopener noreferrer">
@@ -92,7 +92,8 @@
                                 </select>
                                 - Vendedor: {{ detalle.vendedor }}.
                             </label>
-                            <input type="hidden" name="{{ 'idValoracion'~ detalle.idValoracion }}" value="{{ detalle.idValoracion }}">
+                            {{ dump(detalle.idValoracion) }}
+                            <input type="hidden" name="{{ 'idValoracion'~ detalle.articuloId }}" value="{{ detalle.idValoracion }}">
                             <input type="hidden" name="{{ 'articuloId'~ detalle.articuloId }}" value="{{ detalle.articuloId }}">
                             <input type="hidden" name="{{ 'vendedorId'~ detalle.articuloId }}" value="{{ detalle.idVendedor }}">
                             <input type="hidden" name="{{ 'idDetalle'~ detalle.articuloId }}" value="{{ detalle.idDetalle }}">

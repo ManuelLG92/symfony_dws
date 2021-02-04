@@ -86,21 +86,27 @@ class UsuarioManager
         $this->em->flush();
     }
 
+    public function comparaNuevaclave($clave, $claveVerificacion)
+    {
+        return strcmp($clave,$claveVerificacion);
+    }
 
     public function ChequeaClave($clave, $claveUsuarioHashed)
     {
-        if(password_verify($clave, $claveUsuarioHashed)){
-            return true;
-        } else {
-            return false;
-        }
+        return password_verify($clave, $claveUsuarioHashed);
+
     }
 
 
-    public function encriptarClave (string $clave) :string
+    public function encriptarClave (string $clave) : string
     {
         return password_hash($clave, PASSWORD_DEFAULT);
 
+    }
+
+    public function compruebaEmail(string $email)
+    {
+        return $this->usuarioRepository->findByEmail($email);
     }
 
 }

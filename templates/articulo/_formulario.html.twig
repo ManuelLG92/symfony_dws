@@ -1,6 +1,6 @@
  <form action="{{ accion }}" method="post" class="row" id="formulario" enctype="multipart/form-data" autocomplete="off">
         <div class="col-md-6 mx-auto">
-
+            <input type="text" name="articuloId" id="id" value="{{ articulo.id }}">
         <div>
             <label class="form-label" for="nombre">Nombre del Articulo <span class="text-danger">*</span> </label>
             <input type="text" name="nombre" id="nombre"
@@ -68,22 +68,37 @@
             <input type="hidden" name="csrf" value="{{ csrf_token('crear' ~ app.user.id) }}">
             {{ dump(csrf_token('crear' ~ app.user.id )) }}
             {{ dump(modo) }}
-                <div class="mb-3">
+              {#  <div class="mb-3">
                     <label for="imagen" class="form-label">Imagen (opcional)</label>
                     <input class="form-control" type="file" id="imagen" name="imagen">
-                </div>
+                </div>#}
             {% endif %}
 
             {% if modo == 'editar' %}
                 <input type="hidden" name="csrf" value="{{ csrf_token('editar' ~ app.user.id) }}">
                 {{ dump(csrf_token('editar' ~ app.user.id )) }}
                 {{ dump(modo) }}
-                <div class="text-center">
+                {% if articulo.foto is null %}
+                    <p>Tu articulo no tiene ninguna foto, puedes agregar una si lo deseas en el siguiente campo.</p>
+                {% else %}
+                   <input type="text" name="imagenActual" value="{{ articulo.foto }}">
+                    <div class="text-center">
+                    <img src="{{ asset('imagenes_articulos/') ~ articulo.foto }}"  alt="..." width="{{ imgWidth }}" height="{{ imgHeight }}" >
+                    </div>
+                    <p class="mt-3">Esta es la imagen de tu articulo, la puedes cambiar por otra si lo deseas en el siguiente campo imagen.</p>
+                {% endif %}
+                <p>Solo permite formato JPG, JPEG y PNG, la foto debe pesar menos de 1 MB.</p>
+
+
+                {#<div class="text-center">
                 <img src="{{ asset('imagenes_articulos/jquery.png') }}" alt="jquery" width="240px" id="imagen">
-                </div>
+                </div>#}
                 <input type="hidden" name="_method" value="PUT">
             {% endif %}
-
+            <div class="mb-3">
+                <label for="imagen" class="form-label">Imagen (opcional)</label>
+                <input class="form-control" type="file" id="imagen" name="imagen">
+            </div>
         {#<div class="col-12 mt-3 text-center">
             <button class="btn btn-primary w-25" id="btn" type="submit">{{ btn_form|default('Crear')}}</button>
         </div>#}

@@ -28,7 +28,7 @@ class RecuperarClaveController extends AbstractController
     }
 
     /**
-     * @Route("/datos-recuperar-clave", name="datos_recuperar_clave", methods = { "POST" })
+     * @Route("/datos-recuperar-clave", name="datos_recuperar_clave", methods = { "POST"})
      */
     public function datosRecuperarClave(Mailer $mailer, RecuperacionRepository $recuperacionRepository,
                                         UsuarioRepository $usuarioRepository,

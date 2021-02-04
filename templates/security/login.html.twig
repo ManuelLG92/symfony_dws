@@ -36,7 +36,9 @@
         </div>
     </form>
         {% if error %}
-            <p>Si olvidaste tu contraseña <a href="#">Pincha aqui</a></p>
+            <div class="text-center mt-3 ">
+            <p>Si olvidaste tu contraseña <a href="{{ path('recuperar_clave') }}">Pincha aqui</a></p>
+            </div>
         {% endif %}
     </div>
     <script src="{{ asset('js/loginValidation.js') }}"></script>
