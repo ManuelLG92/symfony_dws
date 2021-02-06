@@ -18,6 +18,16 @@ class VendedorRepository extends ServiceEntityRepository
     {
         parent::__construct($registry, Vendedor::class);
     }
+    public function findById($value)
+    {
+        return $this->createQueryBuilder('a')
+            ->andWhere('a.id = :val')
+            ->setParameter('val', $value)
+            ->orderBy('a.id', 'DESC')
+            ->setMaxResults(2)
+            ->getQuery()
+            ->getResult();
+    }
 
     // /**
     //  * @return Vendedor[] Returns an array of Vendedor objects

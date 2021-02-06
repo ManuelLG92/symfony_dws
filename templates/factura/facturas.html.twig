@@ -1,0 +1,54 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Facturas{% endblock %}
+
+{% block body %}
+    <div class="container contenedor rounded p-3">
+        <div class="text-center">
+            <h3 class="text-decoration-underline">Facturas</h3>
+        <table class="table w-75 mx-auto">
+            <thead>
+            <tr>
+                <th scope="col" class="col-4"># </th>
+                <th scope="col" class="col-4">Importe</th>
+                <th scope="col" class="col-4">Fecha</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for  factura in facturas %}
+                <tr>
+                    <th scope="row" class="col-4">
+                        <a href="{{ path('factura', {'id': factura.id, 'usuario' : usuario.id }) }}"
+                           class="text-decoration-none text-dark" target="_blank">
+                            {{ factura.id }}
+                        </a>
+                    </th>
+                    <td class="col-4" >{{ factura.importe }} BC</td>
+                    <td class="col-4" >{{ factura.fecha|date("m/d/Y") }}</td>
+                </tr>
+            {% else %}
+                <tr>
+                    <td colspan="3" class="text-center">aun no tienes compras</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    {% if gasto > 0 %}
+        <div>
+            <h5>Has gastado <strong>{{ gasto }} BC</strong> en compras.</h5>
+        </div>
+    {% endif %}
+</div>
+        <div class="mt-3">
+            {{
+            include  (
+                'comunes/_paginacion.html.twig', {
+                numero_paginas : numero_paginas,
+                pagina_actual : pagina_actual,
+                'parametros_ruta' : { 'id' : app.user.id }
+
+            }) }}
+
+        </div>
+    </div>
+{% endblock %}

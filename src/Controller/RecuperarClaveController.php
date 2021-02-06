@@ -29,6 +29,11 @@ class RecuperarClaveController extends AbstractController
 
     /**
      * @Route("/datos-recuperar-clave", name="datos_recuperar_clave", methods = { "POST"})
+     * @param Mailer $mailer
+     * @param RecuperacionRepository $recuperacionRepository
+     * @param UsuarioRepository $usuarioRepository
+     * @param Request $request
+     * @return Response
      */
     public function datosRecuperarClave(Mailer $mailer, RecuperacionRepository $recuperacionRepository,
                                         UsuarioRepository $usuarioRepository,
@@ -87,12 +92,15 @@ class RecuperarClaveController extends AbstractController
     }
 
 
-
     /**
      * @Route("/clave-token/{token}", name="token_clave", methods = { "GET" })
+     * @param string $token
+     * @param RecuperacionRepository $recuperacionRepository
+     * @param UsuarioRepository $usuarioRepository
+     * @return Response
      */
     public function compruebaToken(string $token,RecuperacionRepository $recuperacionRepository
-        , UsuarioRepository $usuarioRepository): Response
+        , UsuarioRepository $usuarioRepository, EntityManagerInterface $em): Response
     {
         if ($this->getUser()){
             $this->addFlash('fail', 'Es necesario cerrar sesion para reestablecer una contraseña.');
@@ -108,7 +116,9 @@ class RecuperarClaveController extends AbstractController
                 ]);
             } else {
                 $this->addFlash('fail',
-                    'Han pasado mas de 24 horas desde que se genero el token, genelo aqui nuevamente.');
+                    'Han pasado mas de 24 horas desde que se genero el token, genera uno nuevo aqui.');
+                $em->remove($token);
+                $em->flush();
                 return $this->
                 redirectToRoute('recuperar_clave');
             }

@@ -3,8 +3,6 @@
 namespace App\Controller;
 
 use App\Entity\Articulo;
-use App\Entity\Usuario;
-use App\Form\ArticuloType;
 use App\Repository\ArticuloRepository;
 use App\Repository\DetalleRepository;
 use App\Repository\SeccionRepository;
@@ -17,8 +15,6 @@ use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Security\Csrf\CsrfToken;
-use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 
 /**
  * @Route("/articulo")
@@ -28,6 +24,8 @@ class ArticuloController extends AbstractController
 {
     /**
      * @Route("/", name="articulo_index", methods={"GET"})
+     * @param ArticuloRepository $articuloRepository
+     * @return Response
      */
     public function index(ArticuloRepository $articuloRepository): Response
     {
@@ -38,6 +36,9 @@ class ArticuloController extends AbstractController
 
     /**
      * @Route("/new", name="articulo_new", methods={"GET"})
+     * @param SeccionRepository $seccionRepository
+     * @param Request $request
+     * @return Response
      */
     public function new(SeccionRepository $seccionRepository, Request $request): Response
     {
@@ -54,13 +55,20 @@ class ArticuloController extends AbstractController
         }
 
     }
+
     /**
      * @Route("/editar/{usuario<\d+>}/{id<\d+>}", name="editar_articulo_get", methods={"GET"})
+     * @param int $usuario
+     * @param int $id
+     * @param ArticuloRepository $articuloRepository
+     * @param SeccionRepository $seccionRepository
+     * @param UsuarioRepository $usuarioRepository
+     * @param Request $request
+     * @return Response
      */
     public function editarArticuloGet(int $usuario, int $id,
       ArticuloRepository $articuloRepository,SeccionRepository $seccionRepository,
-                                      UsuarioRepository $usuarioRepository,
-        Request $request): Response
+          UsuarioRepository $usuarioRepository, Request $request): Response
     {
 
         if ($this->chequeaUsuarioLogueado($request)){
@@ -92,6 +100,13 @@ class ArticuloController extends AbstractController
 
     /**
      * @Route("/editar/{id<\d+>}", name="editar_articulo_put", methods={"PUT"})
+     * @param int $id
+     * @param ArticuloRepository $articuloRepository
+     * @param EntityManagerInterface $em
+     * @param SecurityManager $securityManager
+     * @param UsuarioRepository $usuarioRepository
+     * @param Request $request
+     * @return Response
      */
     public function editarArticulo(
         int $id, ArticuloRepository $articuloRepository,
@@ -147,6 +162,7 @@ class ArticuloController extends AbstractController
                                     try {
                                     $fs = new Filesystem();
                                     $fs->remove($this->getParameter('directorio_foto_articulo').'/'.$imagenActual);
+
                                     }catch (\Exception $e) {
                                         $this->addFlash('fail','Ha ocurrido un error eliminando la imagen del sistema');
                                     }
@@ -169,43 +185,16 @@ class ArticuloController extends AbstractController
                             $this->addFlash('fail','No se ha podido actualizar el articulo.');
                             return $this->redirectToRoute('articulo_show',['id'=>$articulo->getId()]);
                         }
-                 /*       try {
-                            $em->persist($articulo);
-                            $em->flush();
-                            $this->addFlash('success','Articulo editado exitosamente.');
-                            return $this->redirectToRoute('articulo_show',['id'=> $id]);*/
 
-                            /*$response = new Response(
-                                'Articulo Editada' ,
-                                Response::HTTP_NOT_FOUND,
-                                ['content-type' => 'text/html']
-                            );
-                            return $response;*/
-                      /*  }catch (\Exception $e) {
-                            $articuloError = true;
-                        }*/
                     } else {
                         $this->addFlash('fail','Hay errores en los campos del articulo que quieres editar.');
                         return $this->redirectToRoute('articulo_show',['id'=> $id]);
-                        //return $this->redirectToRoute('articulo_show');
 
-                       /* $response = new Response(
-                            'Campos no validos' ,
-                            Response::HTTP_NOT_FOUND,
-                            ['content-type' => 'text/html']
-                        );
-                        return $response;*/
                     }
-
             }else {
                 $this->addFlash('fail','Ha habido un problema con el token seguridad');
                 return $this->redirectToRoute('index');
-                /*$response = new Response(
-                    'Token no valido' ,
-                    Response::HTTP_NOT_FOUND,
-                    ['content-type' => 'text/html']
-                );
-                return $response;*/
+
             }
         }
         else {
@@ -217,6 +206,10 @@ class ArticuloController extends AbstractController
 
     /**
      * @Route("/nuevo", name="articulo_nuevo_post", methods={"POST"})
+     * @param Request $request
+     * @param EntityManagerInterface $em
+     * @param ArticuloRepository $articuloRepository
+     * @return Response
      */
     public function crearNuevoArticulo(
         Request $request,
@@ -226,7 +219,6 @@ class ArticuloController extends AbstractController
 
         $usuarioId = $request->request->get('usuario_id');
 
-        //dump($usuarioId);
         if ($this->chequeaUsuarioLogueado($request)){
             if($this->isCsrfTokenValid('crear'.$this->getUser()->getId(),
                 $request->request->get('csrf'))){
@@ -277,66 +269,40 @@ class ArticuloController extends AbstractController
                         $em->flush();
                         $this->addFlash('success','Articulo creado exitosamente');
                         return $this->redirectToRoute('articulo_show',['id'=>$articulo->getId()]);
-                        /*$response = new Response(
-                            'Articulo creado' ,
-                            Response::HTTP_NOT_FOUND,
-                            ['content-type' => 'text/html']
-                        );
-                        return $response;*/
+
                     }catch (\Exception $e) {
-                         $articuloError = true;
+                        $this->addFlash('fail','No se ha podido crear el articulo, intentalo de nuevo mas tarde.');
+                        return $this->redirectToRoute('index');
                     }
                 } else {
                     $this->addFlash('fail','Existen campos no validos en los detalles del articulo que intentaste crear, intentalo de nuevo.');
                     return $this->redirectToRoute('articulo_new');
-                    /*$response = new Response(
-                        'Campos articulo no validos' ,
-                        Response::HTTP_NOT_FOUND,
-                        ['content-type' => 'text/html']
-                    );
-                    return $response;*/
                 }
-                /*$respuesta = 'Token valido' . $usuarioId;
-                $response = new Response(
-                    $respuesta,
-                    Response::HTTP_NOT_FOUND,
-                    ['content-type' => 'text/html']
-                );
-                return $response;*/
 
                 } else {
                     $this->addFlash('fail','Solo puedes agregar articulos tuyos.');
                     return $this->redirectToRoute('index');
-                    /*$response = new Response(
-                        'id usuario diferente',
-                        Response::HTTP_NOT_FOUND,
-                        ['content-type' => 'text/html']
-                    );
-                    return $response;*/
+
                 }
             } else {
                 $this->addFlash('fail','Ha ocurrido un error verificando el token de seguridad.');
                 return $this->redirectToRoute('index');
-                /*$response = new Response(
-                    'Token invalido',
-                    Response::HTTP_NOT_FOUND,
-                    ['content-type' => 'text/html']
-                );
-                return $response;*/
+
             }
         } else {
             $this->addFlash('fail','Debes iniciar sesion para crear articulos.');
             return $this->redirectToRoute('app_login');
         }
 
-       /* return $this->render('articulo/show.html.twig', [
-            'articulo' => $articulo,
-        ]);*/
     }
 
 
     /**
      * @Route("/{id<\d+>}", name="articulo_show", methods={"GET"})
+     * @param Articulo $articulo
+     * @param ValoracionRepository $valoracionRepository
+     * @param DetalleRepository $detalleRepository
+     * @return Response
      */
     public function show(Articulo $articulo,
                          ValoracionRepository $valoracionRepository,
@@ -356,6 +322,58 @@ class ArticuloController extends AbstractController
             'estaValorado'=> $estaValorado,
             'valoracion' => $valoracion,
         ]);
+    }
+
+
+    /**
+     * @Route(
+     *     "/todos/{id<\d+>}/{pagina<\d+>}",
+     *     name="articulos_usuario",
+     *     defaults = {
+     *     "pagina" = 1 },
+     *     methods = { "GET" }
+     *     )
+     * @param int $id
+     * @param int $pagina
+     * @param ArticuloRepository $articuloRepository
+     * @param UsuarioRepository $usuarioRepository
+     * @param SecurityManager $securityManager
+     * @param Request $request
+     * @return \Symfony\Component\HttpFoundation\RedirectResponse|Response
+     */
+    public function mostrarTodosLosArticulosPorUsuario(int $id, int $pagina,
+                   ArticuloRepository $articuloRepository, UsuarioRepository $usuarioRepository, SecurityManager $securityManager,
+                   Request $request)
+    {
+        $ELEMENTOS_POR_PAGINA = 8;
+        if ($securityManager->chequeaUsuarioSolicitud($request,$id)){
+            if ($usuarioSolicitud = $usuarioRepository->find($id)){
+                $totalArticulosVendedor = $articuloRepository->
+                NumeroArticulosPorVendedor($usuarioSolicitud->getIdVendedor());
+                $numero_paginas = 1;
+                $totalArticulosVendedor > 0 ? $numero_paginas=ceil($totalArticulosVendedor/$ELEMENTOS_POR_PAGINA) : $numero_paginas = 1;
+                if ($pagina<1){
+                    $pagina = 1;
+                    return $this->redirectToRoute('articulos_usuario',['id'=>$id,'pagina'=> $pagina]);
+                }
+                if ($pagina>$numero_paginas){
+                    return $this->redirectToRoute('articulos_usuario',['id'=>$id,'pagina'=> $numero_paginas]);
+                }
+                return $this->render('articulo/articulos.html.twig',[
+                    'articulos' => $articuloRepository->buscarArticulosPorVendedor($usuarioSolicitud->getIdVendedor(),$pagina,$ELEMENTOS_POR_PAGINA) ,
+                    'usuario' => $usuarioSolicitud,
+                    'pagina_actual' => $pagina,
+                    'total_elementos' => $totalArticulosVendedor,
+                    'numero_paginas' => $numero_paginas,
+                ]);
+            } else{
+                $this->addFlash('fail','No se ha encontrado el vendedor.');
+                return  $this->redirectToRoute('index');
+            }
+        } else {
+            $this->addFlash('fail','Solo puedes ver tus articulos.');
+            return  $this->redirectToRoute('index');
+        }
     }
 
     public function validaArticulos($nombre, $stock, $precio, $descripcion, $seccionSelected): bool
@@ -425,29 +443,6 @@ class ArticuloController extends AbstractController
         }
     }
 
-
-    /**
-     * @Route("/{id<\d+>}", name="articulo_delete", methods={"DELETE"})
-     */
- /*   public function delete(Request $request, Articulo $articulo,
-                           SecurityManager $securityManager): Response
-    {
-        $idUsuarioSolicitud = (int)$request->request->get('idUsuario');
-        if ($securityManager->chequeaUsuarioSolicitud($request,$idUsuarioSolicitud)){
-            if ($this->isCsrfTokenValid('delete'.$articulo->getId(), $request->request->get('_token'))) {
-                $entityManager = $this->getDoctrine()->getManager();
-                $entityManager->remove($articulo);
-                $entityManager->flush();
-                return $this->redirectToRoute('perfil_usuario',['id'=> $idUsuarioSolicitud]);
-            } else {
-                return $this->redirectToRoute('perfil_usuario',['id'=> $this->getUser()->getId()]);
-            }
-        } else {
-            return $this->redirectToRoute('index');
-        }
-
-
-    }*/
 
 
 }

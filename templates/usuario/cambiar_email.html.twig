@@ -1,0 +1,113 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Cambiar Email {% endblock %}
+
+{% block body %}
+
+<div class="container col-10 col-md-4 contenedor p-3 rounded">
+    <form action="#" method="post" id="cambiarEmail" autocomplete="off">
+
+        <input type="hidden" name="idUsuario" value="{{ app.user.id }}">
+        <label for="emailActual" class="mb-1">Introduce tu email actual: </label>
+        <input type="email" class="form-control" name="emailActual" id="emailActual">
+        <small class="errorEmailActual"></small>
+        <br>
+        <label for="emailNuevo" class="mb-1">Introduce el nuevo email: </label>
+        <input type="email" class="form-control" name="emailNuevo" id="emailNuevo">
+        <small class="errorNuevoEmail"></small>
+        <br>
+        <label for="claveActual" class="mb-1">Introduce tu clave actual: </label>
+        <input type="password" class="form-control" name="claveActual" id="claveActual">
+        <small class="errorClave"></small>
+        <br>
+        <span class="text-danger text-center">Indica un nuevo email correcto, al que tengas acceso. Si no perderas tu cuenta</span>
+
+{#        <input type="hidden" name="idUsuario" value="{{ id }}">#}
+        <div class="text-center mt-3">
+            <input type="button" id="enviar" class="btn btn-success" value="Cambiar Email">
+        </div>
+
+    </form>
+</div>
+
+<script>
+    $(document).ready(function (){
+        selectorEmailActual = '#emailActual'
+       errorEmailActual = true;
+        selectorErrorEmailActual = ".errorEmailActual"
+
+        selectorEmailNuevo = '#emailNuevo'
+        errorEmailNuevo = true;
+        selectorErrorNuevoEmail = ".errorNuevoEmail"
+
+        selectorClaveActual = '#claveActual'
+        errorClave = true
+        selectorErrorClave = ".errorClave"
+
+       $(selectorEmailActual).on('keyup change keypress', (e)=>{
+           if(e.which === 32){
+               errorEmailActual = true;
+               return false;
+           }
+
+           validarEmail($(selectorEmailActual).val()) ? errorEmailActual = false : errorEmailActual = true
+           muestraErroresEmail(errorEmailActual,selectorEmailActual, selectorErrorEmailActual);
+       })
+
+
+        $(selectorEmailNuevo).on('keyup change keypress', (e)=>{
+            if(e.which === 32){
+                errorClave = true;
+                return false;
+            }
+
+            validarEmail($(selectorEmailNuevo).val()) ? errorEmailNuevo = false : errorEmailNuevo = true
+
+            muestraErroresEmail(errorEmailNuevo,selectorEmailNuevo,selectorErrorNuevoEmail);
+        })
+        $(selectorClaveActual).on('keyup keypress change', (e)=>{
+            if(e.which === 32){
+
+                return false;
+            }
+            validaClave($(selectorClaveActual).val(),selectorClaveActual,selectorErrorClave)
+
+        })
+
+        $('#enviar').click(()=>{
+            if (!errorEmailActual && !errorEmailNuevo && !errorClave){
+                $('#cambiarEmail').submit();
+            } else {
+                alert('Revisa los campos, hay algun error.')
+            }
+        })
+
+    })
+    function validarEmail(email) {
+        var re = /\S+@\S+\.\S+/;
+        return re.test(email);
+    }
+    function validaClave(clave, selectorInput, selectorErrorClave) {
+        if(clave.length > 7 && clave.length < 33){
+           errorClave = false;
+            $(selectorInput).addClass('is-valid').removeClass('is-invalid')
+            $(selectorErrorClave).html("Clave valida").addClass('text-success').removeClass('text-danger')
+        } else {
+            errorClave = true
+            $(selectorInput).addClass('is-invalid').removeClass('is-valid')
+            $(selectorErrorClave).html("CLave no valida, minimo 8 caracteres y maximo 32.").addClass('text-danger').removeClass('text-success')
+
+        }
+    }
+    function muestraErroresEmail(error, selectorCampo, selectorError) {
+    if(error){
+        $(selectorCampo).addClass('is-invalid').removeClass('is-valid')
+        $(selectorError).html("Debes introducir un email valido.").addClass('text-danger').removeClass('text-success')
+    } else {
+        $(selectorCampo).addClass('is-valid').removeClass('is-invalid')
+        $(selectorError).html("Email valido").addClass('text-success').removeClass('text-danger')
+    }
+    }
+</script>
+
+{% endblock %}

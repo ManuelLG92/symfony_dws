@@ -1,10 +1,13 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Nosotros{% endblock %}
+{% block title %}Contacto{% endblock %}
 {% block body %}
-    <div class="container rounded contenedor p-3">
-        <div class="col-md-6 mx-auto border border-dark p-3">
+    <div class="">
+        <div class="container rounded contenedor p-3 col-md-6 mx-auto">
         <div class="row">
+            <h4 class="text-center">Tienes dudas y/o sugerencias?</h4>
+            <p class="text-center">Si tienes algun problema en la aplicacion contactanos por aqui.</p>
+
         <form action="{{ path('contacto_post') }}" method="post" id="formularioContacto">
             <p id="h"></p>
             <div class="mb-3">

@@ -1,0 +1,56 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Articulos{% endblock %}
+
+{% block body %}
+<div class="container contenedor p-3">
+    <h3 class="text-decoration-underline text-center">Tus articulos</h3>
+    <table class="table table-border w-75 mx-auto text-center">
+        <thead>
+        <tr>
+            <th scope="col" class="col-2">Id</th>
+            <th scope="col" class="col-2">Nombre</th>
+            <th scope="col" class="col-2">Stock</th>
+            <th scope="col" class="col-2">Precio</th>
+            <th scope="col" class="col-2">Opciones</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for articulo in articulos %}
+            <tr>
+                <th scope="row">
+                    <a href="{{ path('articulo_show', {'id': articulo.id  }) }}" class="text-dark">
+                        {{ articulo.id }}
+                    </a>
+                </th>
+                <td>{{ articulo.nombre }}</td>
+                <td>{{ articulo.stock }}</td>
+                <td>{{ articulo.precio }}</td>
+                <td>
+                    <div class="text-center">
+                        <a href="{{ path('editar_articulo_get', {'usuario' : usuario.id, 'id': articulo.id}) }}">
+                            <img src="{{ asset('imagenes_aplicacion/edit.png') }}" alt="Editar" title="Editar">
+                        </a>
+                    </div>
+                </td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="5" class="text-center">Aun no has comprado nada.</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    <div class="mt-3">
+        {{
+        include  (
+            'comunes/_paginacion.html.twig', {
+            numero_paginas : numero_paginas,
+            pagina_actual : pagina_actual,
+            'parametros_ruta' : { 'id' : app.user.id }
+
+        }) }}
+
+    </div>
+</div>
+{% endblock %}

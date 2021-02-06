@@ -23,9 +23,10 @@
             </a>
         </div>
         <div>
-            <a href="#" class="text-dark">Aqui puedes cambiar tu email
+            <a href="{{ path('cambiar_email_get') }}" class="text-dark">Aqui puedes cambiar tu email
             </a>
         </div>
+
 
         <hr>
     <div class="text-center">
@@ -34,7 +35,6 @@
         <table class="table w-75 mx-auto">
         <thead>
         <tr>
-
             <th scope="col" class="col-2">Id</th>
             <th scope="col" class="col-2">Nombre</th>
             <th scope="col" class="col-2">Stock</th>
@@ -43,9 +43,8 @@
         </tr>
         </thead>
         <tbody>
-        {% for index, articulo in articulos %}
+        {% for articulo in articulos %}
             <tr>
-
                 <td>{{ articulo.id }}</td>
                 <td>{{ articulo.nombre }}</td>
                 <td>{{ articulo.stock }}</td>
@@ -56,8 +55,6 @@
                         <img src="{{ asset('imagenes_aplicacion/edit.png') }}" alt="Editar" title="Editar">
                     </a>
                     </div>
-                    {#  <a href="{{ path('articulo_edit', {'id': articulo.id}) }}">edit</a>
-                #}
                 </td>
             </tr>
         {% else %}
@@ -69,7 +66,11 @@
         </tbody>
             </table>
         </div>
-        <h5 class="text-center">Puedes agregar un nuevo producto pinchando <a href="{{ path('articulo_new') }}">¡aqui!</a> </h5>
+        {% if articulos|length > 4 %}
+            <p class="text-center">Estos son tus articulos mas recientes, si quieres ver todos tus articulos pincha
+                <a href="{{ path('articulos_usuario', {'id': usuario.id }) }}"><strong>¡aqui!</strong></a></p>
+        {% endif %}
+        <h5 class="text-center">Puedes agregar un nuevo producto pinchando <a href="{{ path('articulo_new') }}">¡aqui!</a></h5>
         <hr>
         <div class="text-center">
         <h3>Tus ventas:</h3>
@@ -85,9 +86,7 @@
                 </tr>
                 </thead>
                 <tbody>
-
-
-            {% for index, venta in ventas %}
+            {% for venta in ventas %}
                 <tr>
                     <td>
                         <a href="{{ path('articulo_show', {'id': venta.id_articulo }) }}"
@@ -96,19 +95,27 @@
                         </a>
                     </td>
                     <td>{{ venta.2 }}</td>
-                    <td>{{ venta.1 }}</td>
+                    <td>{{ venta.1 }} BC</td>
                 </tr>
             {% endfor %}
-                <tr class="table-secondary" >
-                    <td></td>
-                    <td><strong>{{ vendedor.getNumeroVentas() }}</strong></td>
-                    <td><strong>{{ vendedor.getImporteVentas() }}</strong></td>
-                </tr>
+
                 </tbody>
 
             </table>
+            {% if ventas|length > 4 %}
+                <p class="text-center">Estos son tus ventas mas recientes, si quieres ver todas tus ventas pincha
+                    <a href="{{ path('ventas_usuario', {'id': usuario.id }) }}"><strong>¡aqui!</strong></a></p>
+
+            {% endif %}
+            <div>
+                <h5>En total has vendido <strong>{{ vendedor.getNumeroVentas() }} articulos</strong>,
+                    generando un importe de <strong>{{ vendedor.getImporteVentas() }} BC</strong>. Felicitaciones!
+                </h5>
+            </div>
+
         {% endif %}
         </div>
+
 
         <hr>
 
@@ -123,8 +130,7 @@
             </tr>
         </thead>
         <tbody>
-        {% set compra = 0 %}
-            {% for factura in facturas %}
+            {% for  factura in facturas %}
                 <tr>
                     <th scope="row" class="col-4">
                         <a href="{{ path('factura', {'id': factura.id, 'usuario' : usuario.id }) }}"
@@ -134,27 +140,31 @@
                     </th>
                     <td class="col-4" >{{ factura.importe }} BC</td>
                     <td class="col-4" >{{ factura.fecha|date("m/d/Y") }}</td>
-                    {% set compra = compra + factura.importe %}
                 </tr>
             {% else %}
                 <tr>
                     <td colspan="3" class="text-center">aun no tienes compras</td>
                 </tr>
             {% endfor %}
-        {% if compra > 0 %}
-            <tr class="table-secondary"><td colspan="3" class="text-center">Has gastado <strong>{{ compra }} BC</strong> en compras.</td></tr>
-        {% endif %}
-
-
         </tbody>
         </table>
+            {% if facturas|length > 4 %}
+                <p class="text-center">Estos son tus facturas mas recientes, si quieres ver todas tus facturas pincha
+                    <a href="{{ path('facturas_usuario', {'id': usuario.id }) }}"><strong>¡aqui!</strong></a></p>
+
+            {% endif %}
+            {% if gasto > 0 %}
+                <div>
+                    <h5>Has gastado <strong>{{ gasto }} BC</strong> en compras.</h5>
+                </div>
+            {% endif %}
         </div>
 
 
         <hr>
         <div class="text-center">
-        <h3>Tu banco: </h3>
-        <h5>Tienes {{ usuario.banco.getBalance() }} Buy Coins (BC)</h5>
+        <h3>Finanzas: </h3>
+        <h5>Tienes <strong>{{ usuario.banco.getBalance() }}</strong> Buy Coins (BC).</h5>
         <h5></h5>
         </div>
 

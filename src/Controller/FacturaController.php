@@ -19,6 +19,16 @@ class FacturaController extends AbstractController
     /**
      * @Route("/factura/{id<\d+>}/{usuario<\d+>}", name="factura", methods={"GET"}
      *     )
+     * @param int $id
+     * @param int $usuario
+     * @param SecurityManager $securityManager
+     * @param FacturaRepository $facturaRepository
+     * @param DetalleRepository $detalleRepository
+     * @param UsuarioRepository $usuarioRepository
+     * @param ArticuloRepository $articuloRepository
+     * @param ValoracionRepository $valoracionRepository
+     * @param Request $request
+     * @return Response
      */
     public function FacturaDetalle(int $id, int $usuario, SecurityManager $securityManager,
                    FacturaRepository $facturaRepository, DetalleRepository $detalleRepository,
@@ -76,6 +86,65 @@ class FacturaController extends AbstractController
             return $this->redirectToRoute('index');
         }
 
+    }
 
+    /**
+     * @Route(
+     *     "/facturas/{id<\d+>}/{pagina<\d+>}",
+     *     name="facturas_usuario",
+     *     defaults = {
+     *     "pagina" = 1 },
+     *     methods = { "GET" }
+     *     )
+     * @param int $id
+     * @param int $pagina
+     * @param UsuarioRepository $usuarioRepository
+     * @param SecurityManager $securityManager
+     * @param FacturaRepository $facturaRepository
+     * @param Request $request
+     * @return \Symfony\Component\HttpFoundation\RedirectResponse|Response
+     */
+    public function mostrarTodasLasFacturasPorCliente(int $id, int $pagina, UsuarioRepository $usuarioRepository,
+                                                      SecurityManager $securityManager, FacturaRepository $facturaRepository,
+                                                      Request $request)
+    {
+        $ELEMENTOS_POR_PAGINA = 8;
+        if ($securityManager->chequeaUsuarioSolicitud($request,$id)){
+            if ($usuarioSolicitud = $usuarioRepository->find($id)){
+                try {
+                    $totalFacturasCliente = $facturaRepository->numeroFacturasPorCliente($id);
+                } catch (\Exception $e){
+                    $this->addFlash('fail','Ha ocurrido un error buscando tus facturas' . $e);
+                    return  $this->redirectToRoute('index');
+                }
+                 if ($totalFacturasCliente==0){
+                     $this->addFlash('fail','No se encontraron facturas disponible' );
+                     return  $this->redirectToRoute('index');
+                 }
+                $numero_paginas = 1;
+                $totalFacturasCliente > 0 ? $numero_paginas=ceil($totalFacturasCliente/$ELEMENTOS_POR_PAGINA) : $numero_paginas = 1;
+                if ($pagina<1){
+                    $pagina = 1;
+                    return $this->redirectToRoute('facturas_usuario',['id'=>$id,'pagina'=> $pagina]);
+                }
+                if ($pagina>$numero_paginas){
+                    return $this->redirectToRoute('facturas_usuario',['id'=>$id,'pagina'=> $numero_paginas]);
+                }
+                return $this->render('factura/facturas.html.twig',[
+                    'facturas' => $facturaRepository->buscarFacturasPorUsuario($id,$pagina,$ELEMENTOS_POR_PAGINA),
+                    'usuario' => $usuarioSolicitud,
+                    'pagina_actual' => $pagina,
+                    'total_elementos' => $totalFacturasCliente,
+                    'numero_paginas' => $numero_paginas,
+                    'gasto' => $facturaRepository->importeGastoPorUsuario($id)
+                ]);
+            } else{
+                $this->addFlash('fail','No se ha encontrado el vendedor.');
+                return  $this->redirectToRoute('index');
+            }
+        } else {
+            $this->addFlash('fail','Solo puedes ver tus articulos.');
+            return  $this->redirectToRoute('index');
+        }
     }
 }

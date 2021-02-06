@@ -19,10 +19,8 @@ use App\Repository\UsuarioRepository;
 use App\Repository\ValoracionRepository;
 use App\Repository\VendedorRepository;
 use App\Service\SecurityManager;
-use ContainerVy57jxQ\getVendedorRepositoryService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -32,6 +30,20 @@ class CarroController extends AbstractController
 {
     /**
      * @Route("/carro", name="carro", methods={"POST"})
+     * @param ArticuloRepository $articuloRepository
+     * @param CarroRepository $carroRepository
+     * @param ItemsRepository $itemsRepository
+     * @param SecurityManager $securityManager
+     * @param Request $request
+     * @param EntityManagerInterface $em
+     * @return Response
+     * Codigos de respuesta:
+     * 1 => articulo agregado al carro
+     * 2 => no hay unidades disponibles
+     * 3 => articulo existente en el carro
+     * 4 => articulo no encontrado
+     * 5 => Error creando el carro/No es peticion AJAX/No hay session
+     *
      */
     public function AgregaItems(ArticuloRepository $articuloRepository,
                      CarroRepository $carroRepository, ItemsRepository $itemsRepository,
@@ -48,7 +60,7 @@ class CarroController extends AbstractController
                             if ($carroCompraUsuario = $carroRepository->
                             findOneByIdUsuario($usuarioSolicitud)){
                                 if ($itemsRepository->findItemsByCarroIdAndArticuloId($carroCompraUsuario->getId(),$articulo->getId())){
-                                    return $this->json(['respuesta' => 4]);
+                                    return $this->json(['respuesta' => 3]);
                                 }
                                 $agregarArticuloAlCarro = new Items();
                                 $agregarArticuloAlCarro->setIdArticulo($idArticuloSolicitud);
@@ -62,7 +74,7 @@ class CarroController extends AbstractController
                                 $em->persist($carroCompraUsuario);
                                 $em->flush();
                                 $request->getSession()->set('carro',$carroCompraUsuario->getCantidad());
-                                return $this->json (['respuesta' => "Articulo agregado al carro existente",
+                                return $this->json (['respuesta' => 1,
                                     'cantidad' => $carroCompraUsuario->getCantidad(),
                                                     ]);
 
@@ -84,30 +96,27 @@ class CarroController extends AbstractController
                                     $em->persist($articuloNuevoCarro);
                                     $em->flush();
                                     $request->getSession()->set('carro',1);
-                                    return $this->json(['respuesta' => "Carro creado y Articulo agregado",
+                                    return $this->json(['respuesta' => 1,
                                                         'cantidad' => 1,]);
                                 } else {
                                     $em->remove($nuevoCarro);
-                                    return $this->json(['respuesta' => "Ha habido un error creando el carro"]);
+                                    return $this->json(['respuesta' => 5]);
                                 }
 
                             }
                         } else {
-                            return $this->json(['respuesta' => "no hay unidades disponibles"]);
+                            return $this->json(['respuesta' => 2]);
                         }
                        // return $this->json(['respuesta' => "Valido. articulo encontrado"]);
                     } else {
-                        return $this->json(['respuesta' => "articulo no encontrado"]);
+                        return $this->json(['respuesta' => 4]);
                     }
                 //return $this->json(['respuesta' => "si"]);
-                } else {
-                    return $this->json(['respuesta' => "no es ajax"]);
                 }
         }
-        else {
 
-            return $this->json(['respuesta' => "no sesion "]);
-        }
+            return $this->json(['respuesta' => 5]);
+
 
     }
 
@@ -116,6 +125,13 @@ class CarroController extends AbstractController
      *     requirements = {
      *     "id" = "\d+"},
      *     name="carro_get", methods={"GET"})
+     * @param int $id
+     * @param CarroRepository $carroRepository
+     * @param ItemsRepository $itemsRepository
+     * @param ArticuloRepository $articuloRepository
+     * @param SecurityManager $securityManager
+     * @param Request $request
+     * @return Response
      */
     public function articulosEnCarro(int $id, CarroRepository $carroRepository,
                                      ItemsRepository $itemsRepository,
@@ -158,6 +174,16 @@ class CarroController extends AbstractController
 
     /**
      * @Route("/compra", name="compra", methods={"POST"})
+     * @param ArticuloRepository $articuloRepository
+     * @param SecurityManager $securityManager
+     * @param CarroRepository $carroRepository
+     * @param ItemsRepository $itemsRepository
+     * @param BancoRepository $bancoRepository
+     * @param VendedorRepository $vendedorRepository
+     * @param UsuarioRepository $usuarioRepository
+     * @param Request $request
+     * @param EntityManagerInterface $em
+     * @return Response
      */
     public function compra(ArticuloRepository $articuloRepository,SecurityManager $securityManager,
                            CarroRepository $carroRepository ,ItemsRepository $itemsRepository,
@@ -177,7 +203,6 @@ class CarroController extends AbstractController
             if ($importeCompra > $usuarioCompra->getBanco()->getBalance()) {
                 $this->addFlash('fail', 'No tienes BC suficientes para esta compra. Tienes ' . $usuarioCompra->getBanco()->getBalance() . ' BC disponibles.');
                 return $this->redirectToRoute('carro_get', ['id' => $idUsuarioCompra]);
-                //return $this->json (['respuesta' => 5 ]);
             }
             $errorOperacion = false;
 
@@ -316,7 +341,7 @@ class CarroController extends AbstractController
                 $this->addFlash('success', 'Compra realizada exitosamente.');
                 return $this->redirectToRoute('factura', ['id' => $factura->getId(), 'usuario' => $idUsuarioCompra]);
 
-                //return $this->json (['respuesta' => "todo bien Codigo 0" ]);
+
 
             } else {
                 foreach ($detalles as $detallePersist) {
@@ -338,6 +363,15 @@ class CarroController extends AbstractController
     /**
      * @Route("/carro/{id<\d+>}/{usuario<\d+>}",
      *     name="item_delete", methods={"GET"})
+     * @param int $id
+     * @param int $usuario
+     * @param CarroRepository $carroRepository
+     * @param ItemsRepository $itemsRepository
+     * @param SecurityManager $securityManager
+     * @param UsuarioRepository $usuarioRepository
+     * @param EntityManagerInterface $em
+     * @param Request $request
+     * @return \Symfony\Component\HttpFoundation\RedirectResponse
      */
     public function eliminarItemCarrito(int $id,int $usuario,
                     CarroRepository $carroRepository,ItemsRepository $itemsRepository,
@@ -357,16 +391,20 @@ class CarroController extends AbstractController
                     $em->flush();
                     $session = $request->getSession();
                     $session->set('carro', $carroItemEliminar->getCantidad());
+                    $this->addFlash('success','Articulo eliminado de la cesta exitosamente');
                     return $this->redirectToRoute('carro_get', ['id' => $usuario]);
-                } else {
-                    return $this->json (['respuesta' => 'item no encontrado' ]);
+                }
+                else {$this->addFlash('fail','No ha se ha podido eliminar el articulo, intentalo de nuevo.');
+                    return $this->redirectToRoute('carro_get', ['id' => $usuario]);
                 }
 
             }else {
-                return $this->json (['respuesta' => 'Carro no autenticado' ]);
+                $this->addFlash('fail','No se pudo verificar que la cesta de la solicitud te pertenezca.');
+                return $this->redirectToRoute('index');
             }
         }else {
-            return $this->json (['respuesta' => 'Usuario no verificado' ]);
+            $this->addFlash('fail','Debes estar autenticado para eliminar items de tu cesta de compra');
+            return $this->redirectToRoute('index');
         }
 
     }
@@ -374,6 +412,15 @@ class CarroController extends AbstractController
     /**
      * @Route("/valoracion",
      *     name="valoracion", methods={"POST"})
+     * @param UsuarioRepository $usuarioRepository
+     * @param FacturaRepository $facturaRepository
+     * @param SecurityManager $securityManager
+     * @param EntityManagerInterface $em
+     * @param ArticuloRepository $articuloRepository
+     * @param VendedorRepository $vendedorRepository
+     * @param ValoracionRepository $valoracionRepository
+     * @param Request $request
+     * @return \Symfony\Component\HttpFoundation\RedirectResponse
      */
     public function ValoracionArticulos(UsuarioRepository $usuarioRepository,
                     FacturaRepository $facturaRepository,SecurityManager $securityManager,
@@ -494,6 +541,7 @@ class CarroController extends AbstractController
                        $em->persist($articuloActual);
                        $em->flush();
                    }
+                   $this->addFlash('success','Valoracion exitosa.');
                    return $this->redirectToRoute('perfil_usuario', ['id' => $idUsuario]);
 
                }

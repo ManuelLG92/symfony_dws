@@ -4,6 +4,7 @@ namespace App\Repository;
 
 use App\Entity\Detalle;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\Tools\Pagination\Paginator;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -40,8 +41,20 @@ class DetalleRepository extends ServiceEntityRepository
             ->andWhere('d.id_vendedor = :val')
             ->setParameter('val', $value)
             ->groupBy('d.id_articulo')
+            ->orderBy('sum(d.cantidad)', 'DESC')
+            ->setMaxResults(5)
             ->getQuery()
             ->getResult();
+    }
+
+    public function CantidadVentasPorVendedor($value)
+    {
+        return $this->createQueryBuilder('d')
+            ->select('count(distinct d.id_articulo)')
+            ->andWhere('d.id_vendedor = :val')
+            ->setParameter('val', $value)
+            ->getQuery()
+            ->getSingleScalarResult();
 
     }
 
@@ -54,6 +67,27 @@ class DetalleRepository extends ServiceEntityRepository
             ->getQuery()
             ->getSingleScalarResult()
             ;
+    }
+    public function ArticulosPorVendedorPaginacion($value,$pagina,$elementosPagina)
+    {
+        $queryDql = $this->createQueryBuilder('d')
+            ->andWhere('d.id_vendedor = :val')
+            ->setParameter('val', $value)
+            ->orderBy('d.id', 'DESC')
+            ->getQuery()
+        ;
+
+            return $this->paginacionDetalles($queryDql,$pagina,$elementosPagina);
+    }
+
+    public function paginacionDetalles ($dql, $pagina, $numeroElementos)
+    {
+        $paginador = new Paginator($dql);
+        $paginador->getQuery()
+            ->setFirstResult($numeroElementos * ($pagina-1))
+            ->setMaxResults($numeroElementos);
+        return $paginador;
+
     }
 /*
     // /**

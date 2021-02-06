@@ -109,4 +109,18 @@ class UsuarioManager
         return $this->usuarioRepository->findByEmail($email);
     }
 
+    public function comparaEmails($emailSolicitud, $emailUsuario): bool
+    {
+        $valido = false;
+        if (strcmp(strtolower($emailSolicitud), strtolower($emailUsuario)) == 0){
+            $valido = true;
+        }
+        return $valido;
+    }
+
+    public function compruebaEmailBienFormado($email): bool
+    {
+        return filter_var($email,FILTER_VALIDATE_EMAIL);
+    }
+
 }

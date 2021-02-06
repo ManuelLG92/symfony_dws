@@ -7,9 +7,9 @@
             <div class="card col-5 col-md-3 m-1 m-2" >
                 <a href="{{ path("articulo_show", {'id': sec.id}) }} " target="_blank">
                 {% if sec.foto is null %}
-                    <img src="{{ asset('imagenes_articulos/jquery.png') }}" class="card-img-top p-5" alt="..." width="{{ imgWidth }}" height="{{ imgHeight }}">
+                    <img src="{{ asset('imagenes_articulos/buyme.png') }}" class="card-img-top p-5" alt="Imagen por defecto" width="{{ imgWidth }}" height="{{ imgHeight }}">
                 {% else %}
-                    <img src="{{ asset('imagenes_articulos/') ~ sec.foto }}" class="card-img-top p-1" alt="..." width="{{ imgWidth }}" height="{{ imgHeight }}" >
+                    <img src="{{ asset('imagenes_articulos/') ~ sec.foto }}" class="card-img-top p-1" alt="Imagen articulo" width="{{ imgWidth }}" height="{{ imgHeight }}" >
                 {% endif %}
                 </a>
                 <div class="card-body">

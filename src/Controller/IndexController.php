@@ -10,7 +10,6 @@ use App\Repository\SeccionRepository;
 use App\Repository\ValoracionRepository;
 use App\Security\Mailer;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -103,6 +102,11 @@ class IndexController extends AbstractController
      *     "seccion" = "\d+"},
      *     methods = { "GET" }
      *     )
+     * @param int $seccion
+     * @param int $pagina
+     * @param ArticuloRepository $articuloRepository
+     * @param SeccionRepository $seccionRepository
+     * @return \Symfony\Component\HttpFoundation\RedirectResponse|Response
      */
     public function paginacionSeccion(int $seccion,int $pagina,
                                      ArticuloRepository $articuloRepository,

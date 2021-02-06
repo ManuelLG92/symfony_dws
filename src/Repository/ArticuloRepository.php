@@ -39,16 +39,28 @@ class ArticuloRepository extends ServiceEntityRepository
         return $this->createQueryBuilder('a')
             ->andWhere('a.id_vendedor = :val')
             ->setParameter('val', $value)
-            ->orderBy('a.id', 'ASC')
+            ->orderBy('a.id', 'DESC')
+            ->setMaxResults(5)
             ->getQuery()
             ->getResult()
             ;
     }
+
     public function NumeroArticulosPorSeccion($value): ?int
     {
         return $this->createQueryBuilder('a')
             ->select('count(a.id)')
             ->andWhere('a.id_seccion = :val')
+            ->setParameter('val', $value)
+            ->getQuery()
+            ->getSingleScalarResult();
+
+    }
+    public function NumeroArticulosPorVendedor($value): ?int
+    {
+        return $this->createQueryBuilder('a')
+            ->select('count(a.id)')
+            ->andWhere('a.id_vendedor = :val')
             ->setParameter('val', $value)
             ->getQuery()
             ->getSingleScalarResult();
@@ -62,10 +74,20 @@ class ArticuloRepository extends ServiceEntityRepository
             ->setParameter('val', $seccion)
             ->orderBy('a.id', 'ASC')
             ->getQuery();
-        return $this->paginacion($queryDql,$pagina,$elementosPagina);
+        return $this->paginacionArticulos($queryDql,$pagina,$elementosPagina);
     }
 
-    public function paginacion ($dql, $pagina, $numeroElementos)
+    public function buscarArticulosPorVendedor($vendedor, $pagina,$elementosPagina)
+    {
+        $queryDql = $this->createQueryBuilder('a')
+            ->andWhere('a.id_vendedor = :val')
+            ->setParameter('val', $vendedor)
+            ->orderBy('a.id', 'ASC')
+            ->getQuery();
+        return $this->paginacionArticulos($queryDql,$pagina,$elementosPagina);
+    }
+
+    public function paginacionArticulos ($dql, $pagina, $numeroElementos)
     {
         $paginador = new Paginator($dql);
         $paginador->getQuery()

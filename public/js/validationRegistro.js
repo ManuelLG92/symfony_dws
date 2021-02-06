@@ -75,6 +75,7 @@ $(document).ready(()=>{
         mensajeErrorString(erroresCampos[$(inputEmail).prop("id")],"mail",selectorErrorEmail,"Email",5,70)
 
     }
+
     //compruebaCamposString(inputPiso, 5, 70)
     inputClave = "#clave"
     if ($(inputClave).length>0){
@@ -161,12 +162,19 @@ $(document).ready(()=>{
         mensajeErrorString(erroresCampos[$(inputPais).prop("id")],"str",selectorErrorPais,"Pais",2,50)
 
     })
-    $(inputEmail).on('keyup change',()=>{
+    $(inputEmail).on('keyup change keypress',(e)=>{
+        if(e.which === 32){
+            return false;
+        }
         validarEmail(inputEmail,$(inputEmail).val())
         mensajeErrorString(erroresCampos[$(inputEmail).prop("id")],"mail",selectorErrorEmail,"Email",5,70)
 
     })
-    $(inputClave).on('keyup change',()=>{
+    $(inputClave).on('keyup change keypress',(e)=>{
+        if(e.which === 32){
+
+            return false;
+        }
         compruebaCamposString(inputClave, 8, 32)
         mensajeErrorString(erroresCampos[$(inputClave).prop("id")],"str",selectorErrorClave,"Clave",8,32)
 

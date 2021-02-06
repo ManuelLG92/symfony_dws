@@ -2,35 +2,41 @@
 
 {% block title %}Nosotros{% endblock %}
 {% block body %}
-    <div class="container rounded contenedor p-3">
-        <div>
-            <h1>Que es Buy-m3?</h1>
-            <hr>
-            <p>Buy-m3 es un market place donde los usuarios deben registarse
-            para vender sus productos y a su vez comprar productos de otros vendedores.
-            Todos los visitantes podran visualizar los productos pero no podran
-            comprar ni vender ninguno sin registrarse.
-            </p>
-
-            <h2>Como funciona Buy-m3?</h2>
+    <div class="container rounded contenedor p-3 ">
+            <div>
+                <h1 class="text-center" >Que es Buy-m3?</h1>
+                <hr>
+                <p>Buy-m3 es un market place donde los usuarios deben registarse
+                para vender sus productos y a su vez comprar productos de otros vendedores.
+                Todos los visitantes podran visualizar los productos pero no podran
+                comprar ni vender ninguno sin registrarse.
+                </p>
+            </div>
+            <div>
+            <h2 class="text-center mt-3">Como funciona Buy-m3?</h2>
             <hr>
             <p>But-m3 es un market place donde podras hacer cambios y trueques
             mediante una moneda ficticia la cual llamamo Buy Coins (BC), por lo cual
             en los precios y tu balance veras refleja el monto seguido de BC.</p>
-
-            <h3>Terminos Legales Buy-m3</h3>
+            </div>
+            <div>
+            <h3 class="text-center mt-3" >Terminos Legales Buy-m3</h3>
             <hr>
             <p>Al ser una aplicacion de aprendizaje consideralo como un juego por
             lo que no debes introducir datos sensibles ni personales, ademas tus datos
             no seran tratados con ningun fin.</p>
-
-            <h4>Dudas y/o sugerencias</h4>
+            </div>
+            <div>
+            <h4 class="text-center mt-3" >Dudas y/o sugerencias</h4>
             <hr>
             <p>Si te surgen dudas, tienes algunas sugerencias o en algun caso
             la aplicacion no este trabajando de forma correcta, por favor ponte
-            en contacto con nosotros mediante el formulario de contacto</p>
+            en contacto con nosotros mediante el
+                <a href="{{ path('contacto') }}" class="text-dark">formulario de contacto pinchando aqui</a>
+            </p>
+            </div>
 
-        </div>
+
 
     </div>
 {% endblock %}

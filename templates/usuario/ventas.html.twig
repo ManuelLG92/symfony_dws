@@ -1,0 +1,61 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Ventas{% endblock %}
+
+{% block body %}
+    <div class="container contenedor p-3">
+
+      <div class="text-center">
+          <h3 class="text-decoration-underline">Tus ventas</h3>
+            {% if vendedor.getNumeroVentas() == 0 %}
+                <p>Aun no tienes ninguna venta.</p>
+            {% else %}
+                <table class="table w-75 mx-auto">
+                    <thead>
+                    <tr>
+                        <th scope="col">Articulo</th>
+                        <th scope="col">Precio</th>
+                        <th scope="col">Unidades</th>
+                        <th scope="col">Importe</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+
+
+                    {% for venta in ventas %}
+{#                        {{ dump(venta) }}#}
+                        <tr>
+                            <th scope="row">
+                                <a href="{{ path('articulo_show', {'id': venta.getIdArticulo() }) }}"
+                                   class="text-dark">
+                                    {{ venta.getIdArticulo()}}
+                                </a>
+                            </th>
+                            <td>{{ venta.getPrecio() }}</td>
+                            <td>{{ venta.getCantidad() }}</td>
+                            <td>{{ venta.getTotal() }} BC</td>
+                        </tr>
+                    {% endfor %}
+
+                    </tbody>
+
+                </table>
+            {% endif %}
+            <h5>En total has vendido <strong>{{ vendedor.getNumeroVentas() }} articulos</strong>,
+                generando un importe de <strong>{{ vendedor.getImporteVentas() }} BC</strong>. Felicitaciones!
+            </h5>
+        </div>
+
+        <div class="mt-3">
+            {{
+            include  (
+                'comunes/_paginacion.html.twig', {
+                numero_paginas : numero_paginas,
+                pagina_actual : pagina_actual,
+                'parametros_ruta' : { 'id' : app.user.id }
+
+            }) }}
+
+        </div>
+    </div>
+{% endblock %}

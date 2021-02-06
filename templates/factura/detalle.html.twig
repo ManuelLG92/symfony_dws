@@ -9,19 +9,19 @@
 
         <div class="w-75 mx-auto p-3">
             <div class="d-flex justify-content-between">
-                <h2>Factura {{ factura.id }}</h2>
-                <h2>Fecha: {{ factura.fecha|date("m/d/Y") }}</h2>
+                <h3>Factura {{ factura.id }}</h3>
+                <h3>Fecha: {{ factura.fecha|date("m/d/Y") }}</h3>
             </div>
             <hr>
             <div>
-                <h3>Cliente: {{ app.user.nombre|capitalize}} {{ app.user.apellido|capitalize}}</h3>
-                <h3>Direccion:</h3>
-                <h4>{{ app.user.direccion.via|capitalize}} {{ app.user.direccion.nombreVia|capitalize}} {{ app.user.direccion.numero|capitalize}}
+                <h4>Cliente: {{ app.user.nombre|capitalize}} {{ app.user.apellido|capitalize}}</h4>
+                <h4>Direccion:</h4>
+                <h5>{{ app.user.direccion.via|capitalize}} {{ app.user.direccion.nombreVia|capitalize}} {{ app.user.direccion.numero|capitalize}}
                     {% if app.user.direccion.piso is not null %} piso {{ app.user.direccion.piso }} {% endif %}
                     {% if app.user.direccion.puerta is not null %} puerta {{ app.user.direccion.puerta|capitalize }}{% endif %}.
-                </h4>
-                <h4>{{ app.user.direccion.ciudad|capitalize}} CP {{ app.user.direccion.cp}}, {{ app.user.direccion.estado|capitalize}}
-                    , {{ app.user.direccion.pais|capitalize}}.</h4>
+                </h5>
+                <h5>{{ app.user.direccion.ciudad|capitalize}} CP {{ app.user.direccion.cp}}, {{ app.user.direccion.estado|capitalize}}
+                    , {{ app.user.direccion.pais|capitalize}}.</h5>
 
             </div>
 
@@ -92,7 +92,7 @@
                                 </select>
                                 - Vendedor: {{ detalle.vendedor }}.
                             </label>
-                            {{ dump(detalle.idValoracion) }}
+{#                            {{ dump(detalle.idValoracion) }}#}
                             <input type="hidden" name="{{ 'idValoracion'~ detalle.articuloId }}" value="{{ detalle.idValoracion }}">
                             <input type="hidden" name="{{ 'articuloId'~ detalle.articuloId }}" value="{{ detalle.articuloId }}">
                             <input type="hidden" name="{{ 'vendedorId'~ detalle.articuloId }}" value="{{ detalle.idVendedor }}">

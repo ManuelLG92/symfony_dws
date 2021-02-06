@@ -15,6 +15,7 @@ use App\Repository\UsuarioRepository;
 use App\Repository\BancoRepository;
 use App\Repository\ValoracionRepository;
 use App\Repository\VendedorRepository;
+use App\Security\Mailer;
 use App\Service\SecurityManager;
 use App\Service\UsuarioManager;
 use Doctrine\ORM\EntityManager;
@@ -24,6 +25,7 @@ use \Symfony\Component\HttpFoundation\Request;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use function Symfony\Component\Translation\t;
 
 /**
  * @Route("/usuario")
@@ -413,13 +415,18 @@ class UsuarioController extends AbstractController
     {
         if ($this->chequeaUsuarioEnSesion($request,$id)){
 
+        try {
         $usuario = $usuarioRepository->find($id);
         $direccion = $direccionRepository->find($usuario->getDireccion());
         $banco = $bancoRepository->find($usuario->getBanco());
         $articulos = $articuloRepository->findByIdVendedor($usuario->getIdVendedor());
         $vendedor = $vendedorRepository->find($usuario->getIdVendedor());
         $facturas = $facturaRepository->findByUsuarioId($usuario->getId());
-
+        $cantidadGastada = $facturaRepository->importeGastoPorUsuario($id);
+         } catch (\Exception $e){
+            $this->addFlash('fail','Ha ocurrido un error cargando tu informacion, intentalo mas tarde.');
+            return  $this->redirectToRoute('index');
+        }
 
         $ventasDetalle=[];
         /*$detalle = [];
@@ -435,7 +442,6 @@ class UsuarioController extends AbstractController
             ArticulosPorVendedor($vendedor->getId());
 
 
-
         if ($usuario != null && $direccion != null && $banco != null) {
             return $this->render('usuario/perfil.html.twig', [
                 'usuario' => $usuario,
@@ -445,6 +451,7 @@ class UsuarioController extends AbstractController
                 'vendedor' => $vendedor,
                 'facturas' => $facturas,
                 'ventas' => $VentasVendedor,
+                'gasto' => $cantidadGastada,
             ]);
         }
         else {
@@ -518,8 +525,16 @@ class UsuarioController extends AbstractController
         }
         return $this->render('usuario/cambiar_clave.html.twig',['id'=>$this->getUser()->getId()]);
     }
+
+
     /**
      * @Route("/cambiar-clave", methods={"POST"}, name="cambiar_clave_post")
+     * @param UsuarioManager $usuarioManager
+     * @param UsuarioRepository $usuarioRepository
+     * @param SecurityManager $securityManager
+     * @param Request $request
+     * @param EntityManagerInterface $em
+     * @return \Symfony\Component\HttpFoundation\RedirectResponse
      */
     public function cambiarClavePost(UsuarioManager $usuarioManager,
                                      UsuarioRepository $usuarioRepository,
@@ -554,10 +569,88 @@ class UsuarioController extends AbstractController
             }
         } else {
             $this->addFlash('fail','Tienes que iniciar sesion para cambiar tu clave, si no la sabes puedes recuperarla desde el login.');
-            return $this->redirectToRoute('app_login');
+            return $this->redirectToRoute('index');
         }
 
     }
+
+    /**
+     * @Route("/cambiar-email", methods={"GET"}, name="cambiar_email_get")
+     */
+    public function cambiarEmailGet(Request $request)
+    {
+        if (!$this->getUser()){
+            $this->addFlash('fail','Debes iniciar sesion para cambiar tu email.');
+            return  $this->redirectToRoute('app_login');
+        }
+       return $this->render('usuario/cambiar_email.html.twig');
+    }
+    /**
+     * @Route("/cambiar-email", methods={"POST"}, name="cambiar_email_post")
+     */
+    public function cambiarEmailPost(SecurityManager $securityManager,UsuarioRepository $usuarioRepository,
+                                     UsuarioManager $usuarioManager, Mailer $mailer,
+                                     EntityManagerInterface $em, Request $request)
+    {
+        $idUsuarioSesion = trim($request->request->get('idUsuario'));
+        $claveUsuario = trim($request->request->get('claveActual'));
+        $emailActual = trim($request->request->get('emailActual'));
+        $emailNuevo = trim($request->request->get('emailNuevo'));
+
+        if (!$usuarioManager->compruebaEmailBienFormado($emailActual)){
+            $this->addFlash('fail','El email actual no tiene formato valido.');
+            return  $this->redirectToRoute('cambiar_email_get');
+        }
+        if (!$usuarioManager->compruebaEmailBienFormado($emailNuevo)){
+            $this->addFlash('fail','El email nuevo no tiene formato valido.');
+            return  $this->redirectToRoute('cambiar_email_get');
+        }
+        if ($usuarioManager->comparaEmails($emailActual,$emailNuevo)){
+            $this->addFlash('fail','El email actual es el mismo que es que quieres cambiar.');
+            return  $this->redirectToRoute('cambiar_email_get');
+        }
+        if ($usuarioRepository->findByEmail($emailNuevo)){
+            $this->addFlash('fail','El email nuevo ya esta registrado en buy-m3.');
+            return  $this->redirectToRoute('cambiar_email_get');
+        }
+        if ($securityManager->chequeaUsuarioSolicitud($request,$idUsuarioSesion)){
+            if ($usuarioSolicitud = $usuarioRepository->find($idUsuarioSesion)){
+                    if ($usuarioManager->comparaEmails($emailActual,$usuarioSolicitud->getEmail())){
+                        if ($usuarioManager->ChequeaClave($claveUsuario,$usuarioSolicitud->getPassword())){
+                            $usuarioSolicitud->setEmail($emailNuevo);
+                            try {
+                                $em->persist($usuarioSolicitud);
+                                $em->flush();
+                                $htmlContenido = '<p>Haz solicitado cambiar tu email de tu cuenta en buy-m3 a ' . $emailNuevo . ' .Si no has sido tu, ponte en contacto con nosotros para recuperar tu cuenta mediante este link: https://buy-m3.000webhostapp.com/</p>';
+                                $mailer->enviarEmail($emailActual,"Cambio Email",$htmlContenido);
+                                $htmlContenido = '<p>Haz solicitado el cambio el email de tu cuenta en buy-m3 a este correo. Si no has pedido este cambio, tu informacion personal a quedado expuesta en algun lugar, por favor ponte en contacto con nosotros mediante este link: https://buy-m3.000webhostapp.com/</p>';
+                                $mailer->enviarEmail($emailNuevo,"Cambio Email",$htmlContenido);
+                                $this->addFlash('success','Email cambiado exitosamente');
+                                $this->addFlash('success','Hemos enviado un email informativo a tu direccion de email anterior y a tu nueva direccion de email. Revisa la carpeta Spam o no deseado.');
+                                return $this->redirectToRoute('perfil_usuario',['id'=> (int)$idUsuarioSesion ]); } catch (\Exception $e){
+                            }
+
+                            }else {
+                            $this->addFlash('fail','La clave que has indicado no coincide con la de tu usuario.');
+                            return  $this->redirectToRoute('cambiar_email_get');
+                        }
+                    } else {
+                        $this->addFlash('fail','El email actual no coincide con el de tu usuario.');
+                        return  $this->redirectToRoute('cambiar_email_get');
+                    }
+
+            } else {
+                $this->addFlash('fail','Usuario no encontrado.');
+                //return $this->redirectToRoute('index');
+            }
+        } else {
+            $this->addFlash('fail','Tienes que iniciar sesion para cambiar tu email.');
+           // return $this->redirectToRoute('index');
+        }
+        return $this->redirectToRoute('index');
+    }
+
+
 
     public function compruebaLongitudClave(string $clave)
     {
@@ -565,74 +658,6 @@ class UsuarioController extends AbstractController
         return $validacionLongitud;
     }
 
-   /* public function login ()
-    {
-        $auth_rute = "/usuario/auth";
-        return $this->render('usuario/login/login.html.twig', [
-            'auth_ruta' => $auth_rute,
-        ]);
-    }*/
-
-
-   /* public function autenticacion (
-        Request $request,
-        UsuarioRepository $usuarioRepository,
-        UsuarioManager $usuarioManager): Response
-    {
-        $email = $request->request->get('email');
-        $clave = $request->request->get('clave');
-        if ($email != null && $clave != null){
-            if (!empty($email) && !empty($clave)){
-                $criteria = ['Email' => $email];
-                $usuario = $usuarioRepository->findOneBy($criteria);
-                if($usuario) {
-                    if($usuarioManager->ChequeaClave($clave, $usuario->getPassword())){
-
-                        $respuesta = 'Clave valida';
-                        $response = new Response(
-                            $respuesta,
-                            Response::HTTP_OK,
-                            ['content-type' => 'text/html']
-                        );
-                        return $response;
-                    } else {
-                        $respuesta = 'Clave no valida';
-                        $response = new Response(
-                            $respuesta,
-                            Response::HTTP_OK,
-                            ['content-type' => 'text/html']
-                        );
-                        return $response;
-                    }
-
-                } else {
-                    $respuesta = 'Email Invalido';
-                    $response = new Response(
-                        $respuesta,
-                        Response::HTTP_OK,
-                        ['content-type' => 'text/html']
-                    );
-                    return $response;
-                }
-            }
-        } else {
-            $response = new Response(
-                'Los campos no pueden ser nulos',
-                Response::HTTP_OK,
-                ['content-type' => 'text/html']
-            );
-            return $response;
-        }
-        $clave2 = $usuarioManager->ChequeaClave('test', '$2y$10$.7PuF/1vBK1s.n6dLkk0eeQn3OdFxltAx0aLWsPuDCwawqR/gtNh2');
-        dump($clave2);
-        return new Response(
-            $clave2,
-            Response::HTTP_OK,
-            ['content-type' => 'text/html']
-        );
-
-
-    }*/
 
     public function chequeaUsuarioEnSesion(Request $request, int $idUsuario): bool
     {
@@ -648,6 +673,7 @@ class UsuarioController extends AbstractController
             return false;
         }
     }
+
 
 
 

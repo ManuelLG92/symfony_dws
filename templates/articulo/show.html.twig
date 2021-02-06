@@ -11,9 +11,9 @@
     <div class="row">
         <div class="col-md-4 text-center p-2 border">
             {% if articulo.foto is null %}
-                <img src="{{ asset('imagenes_articulos/jquery.png') }}" class="" alt="..." >
+                <img src="{{ asset('imagenes_articulos/buyme.png') }}" alt="imagen por defecto" width="{{ imgWidth }}" height="{{ imgHeight }}">
             {% else %}
-                <img src="{{ asset('imagenes_articulos/') ~ articulo.foto }}" class="" alt="..." width="{{ imgWidth }}" height="{{ imgHeight }}" >
+                <img src="{{ asset('imagenes_articulos/') ~ articulo.foto }}"  alt="{{ asset('imagenes_articulos/') ~ articulo.foto }}" width="{{ imgWidth }}" height="{{ imgHeight }}" >
             {% endif %}
         </div>
         <div class="col-md-6">
