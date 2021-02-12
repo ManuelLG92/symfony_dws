@@ -29,7 +29,7 @@ class ItemsRepository extends ServiceEntityRepository
             ->getResult();
     }
 
-    public function findItemsByCarroIdAndArticuloId($value,$articulo)
+    public function findItemByCarroIdAndArticuloId($value, $articulo)
     {
         return $this->createQueryBuilder('a')
             ->andWhere('a.id_carro = :val')

@@ -2,8 +2,9 @@
 
 namespace App\Controller;
 
+use App\Repository\ArticuloRepository;
 use App\Repository\DetalleRepository;
-use App\Repository\FacturaRepository;
+use App\Repository\DireccionRepository;
 use App\Repository\UsuarioRepository;
 use App\Repository\VendedorRepository;
 use App\Service\SecurityManager;
@@ -75,4 +76,44 @@ class  VendedorController extends AbstractController
             return  $this->redirectToRoute('index');
         }
     }
+
+    /**
+     * @Route(
+     *     "/vendedor/{id<\d+>}",
+     *     name="perfil_vendedor",
+     *     methods = { "GET" } )
+     * @param int $id
+     * @param Request $request
+     * @param ArticuloRepository $articuloRepository
+     * @param VendedorRepository $vendedorRepository
+     * @param UsuarioRepository $usuarioRepository
+     * @param DireccionRepository $direccionRepository
+     * @param DetalleRepository $detalleRepository
+     * @return \Symfony\Component\HttpFoundation\RedirectResponse|Response
+     */
+    public function perfilVendedor(int $id, Request $request,
+                                   ArticuloRepository $articuloRepository,
+                                   VendedorRepository $vendedorRepository,
+                                   UsuarioRepository $usuarioRepository,
+                                    DireccionRepository $direccionRepository,
+                                    DetalleRepository $detalleRepository)
+    {
+        if ($usuarioVendedor = $usuarioRepository->findOneByIdVendedor($id)){
+        $vendedor = $vendedorRepository->find($usuarioVendedor->getIdVendedor());
+        $articulosVendedor = $articuloRepository->findByIdVendedor($vendedor->getId());
+        $direccionVendedor = $direccionRepository->find($usuarioVendedor->getDireccion());
+        $numeroVentas = $detalleRepository->CantidadVentasPorVendedor($vendedor->getId());
+        return $this->render('vendedor/perfilVendedor.html.twig',[
+                'usuario' => $usuarioVendedor,
+                'vendedor' => $vendedor,
+                'articulos' => $articulosVendedor,
+                'direccion' => $direccionVendedor,
+                'ventas' => $numeroVentas,
+
+            ]);
+        }
+        $this->addFlash('fail','No se ha podido encontrar el vendedor.');
+        return $this->redirectToRoute('index');
+    }
+
 }

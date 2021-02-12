@@ -3,7 +3,6 @@
 namespace App\Controller;
 
 use App\Repository\ArticuloRepository;
-
 use App\Repository\CarroRepository;
 use App\Repository\ItemsRepository;
 use App\Repository\SeccionRepository;
@@ -16,7 +15,8 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class IndexController extends AbstractController
 {
-    const ELEMENTOS_POR_PAGINA = 6;
+    const ELEMENTOS_POR_PAGINA = 3;
+
     /**
      * @Route("/", name="index")
      */
@@ -32,6 +32,7 @@ class IndexController extends AbstractController
         $motorId = 5;
         $mueblesId = 6;
         $otrosId = 7;
+
         $articulosAlimentacion = $articuloRepository->findBySeccionId($alimentacionId);
         $articulosEducacion = $articuloRepository->findBySeccionId($educacionId);
         $articulosElectronica = $articuloRepository->findBySeccionId($electronicaId);
@@ -40,23 +41,14 @@ class IndexController extends AbstractController
         $articulosMuebles = $articuloRepository->findBySeccionId($mueblesId);
         $articulosOtros = $articuloRepository->findBySeccionId($otrosId);
         $itemsEnCarrito = 0;
+
         $session = $request->getSession();
 
-        /*$valoracionProducto = round($valoracionRepository->findValoracionItemsById(2),1);
-        $valoracionV = round($valoracionRepository->findValoracionVendedorById(4),1);
 
-        return $this->json (['producto' => $valoracionProducto, 'vendedor' => $valoracionV ]);*/
-
-        //$session->set('carro', 5);
-        //$session->remove('carro');
-       // $response = new Response();
-
-
-        //$session = $request->getSession();
-        if($request->getSession() && $this->getUser() != null){
-            if ($this->getUser()->getId()){
+        if ($request->getSession() && $this->getUser() != null) {
+            if ($this->getUser()->getId()) {
                 if ($carroCompraUsuarioIndex = $carroRepository->
-                findOneByIdUsuario($this->getUser()->getId())){
+                findOneByIdUsuario($this->getUser()->getId())) {
                     $carroCompraUsuarioIndex->
                     setCantidad($itemsRepository->ItemsPorUsuario($carroCompraUsuarioIndex->getId()));
                     $em = $this->getDoctrine()->getManager();
@@ -71,7 +63,7 @@ class IndexController extends AbstractController
         }
 
         return $this->render('index/index.html.twig', [
-           // 'controller_name' => 'IndexController',
+
             'alimentacion' => $articulosAlimentacion,
             'idAlimentacion' => $alimentacionId,
             'educacion' => $articulosEducacion,
@@ -108,35 +100,35 @@ class IndexController extends AbstractController
      * @param SeccionRepository $seccionRepository
      * @return \Symfony\Component\HttpFoundation\RedirectResponse|Response
      */
-    public function paginacionSeccion(int $seccion,int $pagina,
-                                     ArticuloRepository $articuloRepository,
-                                     SeccionRepository $seccionRepository)
+    public function paginacionSeccion(int $seccion, int $pagina,
+                                      ArticuloRepository $articuloRepository,
+                                      SeccionRepository $seccionRepository)
     {
-
         $numeroSecciones = $seccionRepository->findSeccionesId();
         $idSecciones = [];
-        foreach ($numeroSecciones as $seccionId){
+        foreach ($numeroSecciones as $seccionId) {
             $idSecciones[] = (int)$seccionId['id'];
         }
 
-        if (in_array($seccion,$idSecciones)){
+        if (in_array($seccion, $idSecciones)) {
             $totalArticulosPorSeccion = $articuloRepository->
             NumeroArticulosPorSeccion($seccion);
 
             $nombreSeccion = ucfirst($seccionRepository->find($seccion)->getDescripcion());
             $numeroPaginas = 1;
-            $totalArticulosPorSeccion > 0 ? $numeroPaginas=ceil($totalArticulosPorSeccion/self::ELEMENTOS_POR_PAGINA) : $numeroPaginas = 1;
-            if ($pagina<1) {
+            $totalArticulosPorSeccion > 0 ? $numeroPaginas = ceil($totalArticulosPorSeccion / self::ELEMENTOS_POR_PAGINA) : $numeroPaginas = 1;
+
+            if ($pagina < 1) {
                 $pagina = 1;
-                return $this->redirect('/'.$pagina);
+                return $this->redirect('/' .$seccion.'/'. $pagina);
             }
 
-            if ($pagina>$numeroPaginas) {
-                return $this->redirect('/'.$numeroPaginas);
+            if ($pagina > $numeroPaginas) {
+                return $this->redirect('/' .$seccion.'/'. $numeroPaginas);
             }
 
             return $this->render('index/articulos_seccion.html.twig', [
-                'articulos' => $articuloRepository->buscarArticulosPorSeccion($seccion,$pagina,self::ELEMENTOS_POR_PAGINA),
+                'articulos' => $articuloRepository->buscarArticulosPorSeccion($seccion, $pagina, self::ELEMENTOS_POR_PAGINA),
                 'nombre_seccion' => $nombreSeccion,
                 'pagina_actual' => $pagina,
                 'total_elementos' => $totalArticulosPorSeccion,
@@ -146,13 +138,14 @@ class IndexController extends AbstractController
             ]);
 
 
-
             //return $this->json (['numero por seccion' => $totalArticulosPorSeccion]);
         } else {
+            $this->addFlash('fail', 'Seccion no encontrada.');
             return $this->redirectToRoute('index');
         }
-       // return $this->json (['secciones' => $numeroSecciones]);
+        // return $this->json (['secciones' => $numeroSecciones]);
     }
+
     /**
      * @Route(
      *     "/about",
@@ -160,7 +153,7 @@ class IndexController extends AbstractController
      *     methods = { "GET" }
      *     )
      */
-    public function nosotros ()
+    public function nosotros()
     {
         return $this->render('index/about.html.twig');
     }
@@ -172,7 +165,7 @@ class IndexController extends AbstractController
      *     methods = { "GET" }
      *     )
      */
-    public function contacto ()
+    public function contacto()
     {
         return $this->render('index/contacto.html.twig');
     }
@@ -184,18 +177,22 @@ class IndexController extends AbstractController
      *     methods = { "Post" }
      *     )
      */
-    public function enviarFormulario (Mailer $mailer,Request $request)
+    public function enviarFormulario(Mailer $mailer, Request $request)
     {
-        $nombre = $request->request->get('nombre');
-        $asunto = $request->request->get('asunto');
-        $email = $request->request->get('email');
-        $descripcion = $request->request->get('descripcion');
-        $html = 'Nombre: '.$nombre.'. Email: '. $email .'<br>Asunto: '.$asunto.'<br>Descripcion: '. $descripcion;
-       $mailer->enviarEmail($this->getParameter('appEmailParametro'),"Contacto formulario",$html);
-
-       return $this->redirectToRoute('index');
+        try {
+            $nombre = $request->request->get('nombre');
+            $asunto = $request->request->get('asunto');
+            $email = $request->request->get('email');
+            $descripcion = $request->request->get('descripcion');
+            $html = 'Nombre: ' . $nombre . '. Email: ' . $email . '<br>Asunto: ' . $asunto . '<br>Descripcion: ' . $descripcion;
+            $mailer->enviarEmail($this->getParameter('appEmailParametro'), "Contacto formulario", $html);
+            $this->addFlash('success', 'Email enviado exitosamente, nos pondremos en contacto contigo lo mas pronto posible,');
+            return $this->redirectToRoute('index');
+        } catch (\Exception $e) {
+            $this->addFlash('fail', 'Ha ocurrido un error enviando el formulario de contacto, estamos trabajando para reestablecer el servicio lo mas pronto posible,');
+            return $this->redirectToRoute('index');
+        }
     }
-
 
 
 }

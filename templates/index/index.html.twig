@@ -9,9 +9,7 @@
 
 
 <div class="container rounded contenedor p-3">
-    {#{{ app.session.get('carro') }}
 
-    <h3 id="it">Items en el carro {{ app.session.get('carro') }}</h3>#}
     <input type="hidden" class="carro" name="carro" value="{{ carro }}">
     <h2 class="text-center mb-5">Bienvenido a Buy-m3</h2>
 
@@ -20,6 +18,7 @@
         'imgHeight' : imgHeight,
         'imgWidth' : imgWidth,
         titulo : 'Electronica'}) }}
+    {% if electronica|length > 1 %}
     <div class="text-center mt-3 mb-3">
         <h5>Si quieres ver todos los productos de esta seccion
             <a href="{{ path('articulos_seccion', {'seccion' : idElectronica}) }}"
@@ -28,6 +27,7 @@
             </a>
         </h5>
     </div>
+    {% endif %}
     <hr>
 
     <br>
@@ -35,6 +35,7 @@
         'imgHeight' : imgHeight,
         'imgWidth' : imgWidth,
         titulo : 'Educacion'}) }}
+    {% if educacion|length > 1 %}
     <div class="text-center mt-3 mb-3">
         <h5>Si quieres ver todos los productos de esta seccion
             <a href="{{ path('articulos_seccion', {'seccion' : idEducacion}) }}"
@@ -43,12 +44,14 @@
             </a>
         </h5>
     </div>
+    {% endif %}
     <hr>
 
     {{ include('articulo/_seccion_articulo.html.twig', {'seccion': alimentacion,
         'imgHeight' : imgHeight,
         'imgWidth' : imgWidth,
         titulo : 'Alimentacion'}) }}
+    {% if alimentacion|length > 1 %}
     <div class="text-center mt-3 mb-5">
         <h5>Si quieres ver todos los productos de esta seccion
             <a href="{{ path('articulos_seccion', {'seccion' : idAlimentacion}) }}"
@@ -57,12 +60,14 @@
             </a>
         </h5>
     </div>
+    {% endif %}
     <hr>
     <br>
     {{ include('articulo/_seccion_articulo.html.twig', {'seccion': hogar,
         'imgHeight' : imgHeight,
         'imgWidth' : imgWidth,
         titulo : 'Hogar'}) }}
+    {% if hogar|length > 1 %}
     <div class="text-center mt-3 mb-3">
         <h5>Si quieres ver todos los productos de esta seccion
             <a href="{{ path('articulos_seccion', {'seccion' : idHogar}) }}"
@@ -71,6 +76,7 @@
             </a>
         </h5>
     </div>
+    {% endif %}
     <hr>
 
     <br>
@@ -78,6 +84,7 @@
         'imgHeight' : imgHeight,
         'imgWidth' : imgWidth,
         titulo : 'Muebles'}) }}
+    {% if muebles|length > 1 %}
     <div class="text-center mt-3 ">
         <h5 class="mb-3">Si quieres ver todos los productos de esta seccion
             <a href="{{ path('articulos_seccion', {'seccion' : idMuebles}) }}"
@@ -86,6 +93,24 @@
             </a>
         </h5>
     </div>
+    {% endif %}
+    <hr>
+
+    <br>
+    {{ include('articulo/_seccion_articulo.html.twig', {'seccion': motor,
+        'imgHeight' : imgHeight,
+        'imgWidth' : imgWidth,
+        titulo : 'Motor'}) }}
+    {% if motor|length > 1 %}
+        <div class="text-center mt-3 ">
+            <h5 class="mb-3">Si quieres ver todos los productos de esta seccion
+                <a href="{{ path('articulos_seccion', {'seccion' : idMotor}) }}"
+                   target="_blank">
+                    pincha aqui.
+                </a>
+            </h5>
+        </div>
+    {% endif %}
     <hr>
 
     <br>
@@ -93,6 +118,7 @@
         'imgHeight' : imgHeight,
         'imgWidth' : imgWidth,
         titulo : 'Otros'}) }}
+    {% if otros|length > 1 %}
     <div class="text-center mt-3 mb-5">
         <h5 class="pb-3">Si quieres ver todos los productos de esta seccion
             <a href="{{ path('articulos_seccion', {'seccion' : idOtros}) }}"
@@ -101,6 +127,7 @@
             </a>
         </h5>
     </div>
+    {% endif %}
 
 </div>
     <script src="{{ asset('js/carroCompra.js') }}" type="text/javascript">

@@ -21,6 +21,7 @@
         <span class="text-center text-danger errorClave"></span>
 
         <input type="hidden" name="idUsuario" value="{{ id }}">
+
         <div class="text-center mt-3">
             <input type="button" id="enviar" class="btn btn-success" value="Reestablecer contraseña">
         </div>
@@ -31,17 +32,27 @@
     $(document).ready(function () {
         clavesIguales= false
         claveActual = false
-        $('#claveActual').on("keyup change",function () {
+
+        $('#claveActual').on("keyup change keypress",function (e) {
+            if(e.which === 32){
+                return false;
+            }
             $('#claveActual').val().length > 7 && $('#claveActual').val().length<33 ? claveActual = true : claveActual = false
             claveActual ? $('.claveOriginal').html('Longitud clave actual correcta.').addClass('text-success').removeClass('text-danger') : $('.claveOriginal').html('La clave debe tener minimo 8 caracteres y maximo 32.').addClass('text-danger')
         })
 
-        $('#clave').on("keyup change",function () {
+        $('#clave').on("keyup change keypress",function (e) {
+            if(e.which === 32){
+                return false;
+            }
             comparaClave($('#clave').val(),$('#clave2').val())
             clavesIguales ? $('.errorClave').html('Coinciden las claves').addClass('text-success').removeClass('text-danger') : $('.errorClave').html('Las claves no coinciden o tienen menos de 8 caracteres').addClass('text-danger')
         })
 
-        $('#clave2').on("keyup change", ()=>{
+        $('#clave2').on("keyup change keypress", (e)=>{
+            if(e.which === 32){
+                return false;
+            }
             comparaClave($('#clave').val(),$('#clave2').val())
             clavesIguales ? $('.errorClave').html('Coinciden las claves y longitud es correcta. ').addClass('text-success').removeClass('text-danger') : $('.errorClave').html('Las claves no coinciden o tienen menos de 8 caracteres').addClass('text-danger')
         })

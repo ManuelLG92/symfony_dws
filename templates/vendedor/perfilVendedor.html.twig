@@ -1,0 +1,60 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Vendedor{% endblock %}
+
+{% block body %}
+    <div class="container contenedor p-3 rounded">
+        <h1 class="text-center">Vendedor</h1>
+        <hr>
+        <div class="text-center">
+            <h4>{{ usuario.nombre|capitalize }} {{ usuario.apellido|capitalize }}</h4>
+            <p>Ubicacion: {{ direccion.ciudad|capitalize }} {{ direccion.cp|upper }},
+                {{ direccion.estado|capitalize }}, {{ direccion.pais|capitalize }} </p>
+            <hr>
+            <h4>Ventas</h4>
+            {% if vendedor.getNumeroVentas() > 0 %}
+                <p>{{ usuario.nombre|capitalize }} ha vendido {{ vendedor.getNumeroVentas()}} articulos. </p>
+                <hr>
+                <h4>Valoraciones</h4>
+                {% if vendedor.valoracion > 0 %}
+
+                    <p>{{ usuario.nombre|capitalize }} tiene una valoracion de {{ vendedor.valoracion }}/5. </p>
+                {% else %}
+                    <p>{{ usuario.nombre|capitalize }} aun no tiene valoraciones.</p>
+                {% endif %}
+            {% else %}
+                <p>{{ usuario.nombre|capitalize }} aun no tiene ventas.</p>
+            {% endif %}
+
+            <hr>
+            <h4>Ultimos articulos de {{ usuario.nombre|capitalize }} </h4>
+            <table class="table w-75 mx-auto">
+                <thead>
+                <tr>
+                    <th scope="col" class="col-2">Id</th>
+                    <th scope="col" class="col-2">Nombre</th>
+                    <th scope="col" class="col-2">Stock</th>
+                    <th scope="col" class="col-2">Precio</th>
+
+                </tr>
+                </thead>
+                <tbody>
+                {% for articulo in articulos %}
+                    <tr>
+                        <td><a href="{{ path("articulo_show",{'id': articulo.id}) }}" class="text-dark">{{ articulo.id }}</a></td>
+                        <td>{{ articulo.nombre }}</td>
+                        <td>{{ articulo.stock }}</td>
+                        <td>{{ articulo.precio }}</td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="5" class="text-center">En este momento {{ usuario.nombre|capitalize }} no tiene articulos disponibles.
+                            </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+            <hr>
+        </div>
+    </div>
+{% endblock %}

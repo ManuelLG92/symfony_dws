@@ -41,7 +41,7 @@ $(document).ready(()=>{
 
     inputNumero = "#numero"
     compruebaCamposString(inputNumero, 1, 5)
-    mensajeErrorString(erroresCampos[$(inputNumero).prop("id")],"str",selectorErrorNumero,"Numero",1,2000)
+    mensajeErrorString(erroresCampos[$(inputNumero).prop("id")],"str",selectorErrorNumero,"Numero",1,5)
 
     inputPiso = "#piso"
     compruebaCamposString(inputPiso, 0, 10)
@@ -172,7 +172,6 @@ $(document).ready(()=>{
     })
     $(inputClave).on('keyup change keypress',(e)=>{
         if(e.which === 32){
-
             return false;
         }
         compruebaCamposString(inputClave, 8, 32)
@@ -196,7 +195,7 @@ $(document).ready(()=>{
             }
         })
         if (error){
-            alert("hay errores")
+            alert("Debes rellenar todos los campos obligatorios.")
         } else {
             $('#formulario').submit()
         }
@@ -214,10 +213,9 @@ $(document).ready(()=>{
 
     function validarEmail(selectorEmail,email) {
         var re = /\S+@\S+\.\S+/;
-
         re.test(email) ? erroresCampos[$(selectorEmail).prop("id")] = false : erroresCampos[$(selectorEmail).prop("id")] = true
         console.log(re.test(email))
-        return re;
+       // return re;
     }
 
     function validaTelefono(selectorTelefono) {

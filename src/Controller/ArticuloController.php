@@ -22,17 +22,19 @@ use Symfony\Component\Routing\Annotation\Route;
 class ArticuloController extends AbstractController
 
 {
+    /*
     /**
      * @Route("/", name="articulo_index", methods={"GET"})
      * @param ArticuloRepository $articuloRepository
      * @return Response
      */
-    public function index(ArticuloRepository $articuloRepository): Response
-    {
-        return $this->render('articulo/carro.html.twig', [
-            'articulos' => $articuloRepository->findAll(),
-        ]);
-    }
+
+    /*   public function index(ArticuloRepository $articuloRepository): Response
+       {
+           return $this->render('articulo/carro.html.twig', [
+               'articulos' => $articuloRepository->findAll(),
+           ]);
+       }*/
 
     /**
      * @Route("/new", name="articulo_new", methods={"GET"})
@@ -57,7 +59,9 @@ class ArticuloController extends AbstractController
     }
 
     /**
-     * @Route("/editar/{usuario<\d+>}/{id<\d+>}", name="editar_articulo_get", methods={"GET"})
+     * @Route("/editar/{usuario<\d+>}/{id<\d+>}",
+     *     name="editar_articulo_get",
+     *     methods={"GET"})
      * @param int $usuario
      * @param int $id
      * @param ArticuloRepository $articuloRepository
@@ -67,23 +71,23 @@ class ArticuloController extends AbstractController
      * @return Response
      */
     public function editarArticuloGet(int $usuario, int $id,
-      ArticuloRepository $articuloRepository,SeccionRepository $seccionRepository,
-          UsuarioRepository $usuarioRepository, Request $request): Response
+                                      ArticuloRepository $articuloRepository, SeccionRepository $seccionRepository,
+                                      UsuarioRepository $usuarioRepository, Request $request): Response
     {
 
-        if ($this->chequeaUsuarioLogueado($request)){
+        if ($this->chequeaUsuarioLogueado($request)) {
             $usuarioSolicitud = $usuarioRepository->find($usuario);
-            if ($usuarioSolicitud == null){
-                $this->addFlash('fail','El usuario del articulo no ha podido ser encontrado.');
+            if ($usuarioSolicitud == null) {
+                $this->addFlash('fail', 'El usuario del articulo no ha podido ser encontrado.');
                 return $this->redirectToRoute('index');
             }
             $articulo = $articuloRepository->find($id);
-            if ($articulo == null){
-                $this->addFlash('fail','Articulo no encontrado');
+            if ($articulo == null) {
+                $this->addFlash('fail', 'Articulo no encontrado');
                 return $this->redirectToRoute('index');
             }
-            if ($articulo->getIdVendedor() != $usuarioSolicitud->getIdVendedor()){
-                $this->addFlash('fail','Solo puedes editar tus articulos.');
+            if ($articulo->getIdVendedor() != $usuarioSolicitud->getIdVendedor()) {
+                $this->addFlash('fail', 'Solo puedes editar tus articulos.');
                 return $this->redirectToRoute('index');
             }
             $secciones = $seccionRepository->findAll();
@@ -115,91 +119,92 @@ class ArticuloController extends AbstractController
     {
         $usuarioId = $request->request->get('usuario_id');
 
-        //dump($usuarioId);
-        if ($securityManager->chequeaUsuarioSolicitud($request,(int)$usuarioId)){
-            if($this->isCsrfTokenValid('editar'.$this->getUser()->getId(),
-                $request->request->get('csrf'))){
 
-                    $nombreArticulo = trim($request->request->get('nombre'));
-                    $stockArticulo = trim($request->request->get('stock'));
-                    $precioArticulo = trim($request->request->get('precio'));
-                    $descripcionArticulo = trim($request->request->get('descripcion'));
-                    $seccionSelected = trim($request->request->get('secciones'));
-                    $imagen = $request->files->get('imagen');
-                    $imagenActual = trim($request->request->get('imagenActual'));
+        if ($securityManager->chequeaUsuarioSolicitud($request, (int)$usuarioId)) {
+            if ($this->isCsrfTokenValid('editar' . $this->getUser()->getId(),
+                $request->request->get('csrf'))) {
 
-                    if ($this->validaArticulos($nombreArticulo,
-                        $stockArticulo, $precioArticulo, $descripcionArticulo,
-                        $seccionSelected)){
-                        $articulo = $articuloRepository->find($id);
-                        if ($articulo == null){
-                            $this->addFlash('fail','No se ha podido encontrar el articulo ');
-                            return $this->redirectToRoute('index');
-                        }
-                        if(!$this->ChequeaPropiedadArticulo($articulo->getIdVendedor(),$usuarioId,$usuarioRepository)){
-                            $this->addFlash('fail','Solo puedes editar los articulos que te pertenecen. ');
-                            return $this->redirectToRoute('index');
-                        }
+                $nombreArticulo = trim($request->request->get('nombre'));
+                $stockArticulo = trim($request->request->get('stock'));
+                $precioArticulo = trim($request->request->get('precio'));
+                $descripcionArticulo = trim($request->request->get('descripcion'));
+                $seccionSelected = trim($request->request->get('secciones'));
+                $imagen = $request->files->get('imagen');
+                $imagenActual = trim($request->request->get('imagenActual'));
 
-                        $articulo->setIdVendedor($this->getUser()->getIdVendedor());
-                        $articulo->setNombre($nombreArticulo);
-                        $articulo->setDescripcion($descripcionArticulo);
-                        $articulo->setStock($stockArticulo);
-                        $articulo->setPrecio($precioArticulo);
-                        $articulo->setIdSeccion($seccionSelected);
-                        if ($imagen){
-                            if ($this->compruebaTipoImagen($imagen)){
-                                if ($this->compruebaTamanoImagen($imagen)){
-                                    try {
-                                        $directorioImagenes = $this->getParameter('directorio_foto_articulo');
-                                        $nombreUnicoImagen = uniqid(). "-". $usuarioId . ".".$imagen->guessExtension();
-                                        $imagen->move($directorioImagenes,$nombreUnicoImagen);
-                                        $articulo->setFoto($nombreUnicoImagen);
-                                        } catch (\Exception $e) {
-                                        $this->addFlash('fail','Ha ocurrido un error subiendo la imagen');
-                                        }
+                if ($this->validaArticulos($nombreArticulo,
+                    $stockArticulo, $precioArticulo, $descripcionArticulo,
+                    $seccionSelected)) {
+                    $articulo = $articuloRepository->find($id);
+                    if ($articulo == null) {
+                        $this->addFlash('fail', 'No se ha podido encontrar el articulo ');
+                        return $this->redirectToRoute('index');
+                    }
+                    if (!$this->ChequeaPropiedadArticulo($articulo->getIdVendedor(), $usuarioId, $usuarioRepository)) {
+                        $this->addFlash('fail', 'Solo puedes editar los articulos que te pertenecen. ');
+                        return $this->redirectToRoute('index');
+                    }
 
-                                    try {
+                    $articulo->setIdVendedor($this->getUser()->getIdVendedor());
+                    $articulo->setNombre($nombreArticulo);
+                    $articulo->setDescripcion($descripcionArticulo);
+                    $articulo->setStock($stockArticulo);
+                    $articulo->setPrecio($precioArticulo);
+                    $articulo->setIdSeccion($seccionSelected);
+                    if ($imagen) {
+                        if ($this->compruebaTipoImagen($imagen)) {
+                            if ($this->compruebaTamanoImagen($imagen)) {
+                                try {
+                                    $directorioImagenes = $this->getParameter('directorio_foto_articulo');
+                                    $nombreUnicoImagen = uniqid() . "-" . $usuarioId . "." . $imagen->guessExtension();
+                                    $imagen->move($directorioImagenes, $nombreUnicoImagen);
+                                    $articulo->setFoto($nombreUnicoImagen);
+                                } catch (\Exception $e) {
+                                    $this->addFlash('fail', 'Ha ocurrido un error subiendo la imagen');
+                                }
+
+                                if (strlen($imagenActual)>0){
+                                try {
                                     $fs = new Filesystem();
-                                    $fs->remove($this->getParameter('directorio_foto_articulo').'/'.$imagenActual);
+                                    $fs->remove($this->getParameter('directorio_foto_articulo') . '/' . $imagenActual);
 
-                                    }catch (\Exception $e) {
-                                        $this->addFlash('fail','Ha ocurrido un error eliminando la imagen del sistema');
-                                    }
-                                } else {
-                                    $this->addFlash('fail','El tamaño maximo permitido es 1MB.');
-                                    return  $this->redirectToRoute('index');
+                                } catch (\Exception $e) {
+                                    $this->addFlash('fail', 'Ha ocurrido un error eliminando la imagen del sistema');
+                                }
                                 }
                             } else {
-                                $this->addFlash('fail','Solo se permiten imagenes JPG, JPEG y PNG..');
-                                return  $this->redirectToRoute('index');
+                                $this->addFlash('fail', 'El tamaño maximo permitido es 1MB.');
+                                return $this->redirectToRoute('index');
                             }
-
+                        } else {
+                            $this->addFlash('fail', 'Solo se permiten imagenes JPG, JPEG y PNG.');
+                            return $this->redirectToRoute('index');
                         }
-                        try {
-                            $em->persist($articulo);
-                            $em->flush();
-                            $this->addFlash('success','Articulo editado exitosamente.');
-                            return $this->redirectToRoute('articulo_show',['id'=>$articulo->getId()]);
-                        } catch (\Exception $e){
-                            $this->addFlash('fail','No se ha podido actualizar el articulo.');
-                            return $this->redirectToRoute('articulo_show',['id'=>$articulo->getId()]);
-                        }
-
-                    } else {
-                        $this->addFlash('fail','Hay errores en los campos del articulo que quieres editar.');
-                        return $this->redirectToRoute('articulo_show',['id'=> $id]);
 
                     }
-            }else {
-                $this->addFlash('fail','Ha habido un problema con el token seguridad');
+                    try {
+                        $em->persist($articulo);
+                        $em->flush();
+                        $this->addFlash('success', 'Articulo editado exitosamente.');
+                        return $this->redirectToRoute('articulo_show', ['id' => $articulo->getId()]);
+                    } catch (\Exception $e) {
+                        $this->addFlash('fail', 'No se ha podido actualizar el articulo.');
+                        return $this->redirectToRoute('articulo_show', ['id' => $articulo->getId()]);
+                    }
+
+                } else {
+                    $this->addFlash('fail', 'Hay errores en los campos del articulo que quieres editar.');
+                    return $this->redirectToRoute('articulo_show', ['id' => $id]);
+
+                }
+            } else {
+                $this->addFlash('fail', 'Ha habido un problema con el token seguridad');
                 return $this->redirectToRoute('index');
 
             }
-        }
-        else {
-            $this->addFlash('fail','Debes iniciar sesion para poder crear articulos');
-            return $this->redirectToRoute('app_login');
+        } else {
+            $this->addFlash('fail', 'Debes iniciar sesion para poder editar articulos');
+            return $this->redirectToRoute('index');
         }
 
     }
@@ -219,78 +224,77 @@ class ArticuloController extends AbstractController
 
         $usuarioId = $request->request->get('usuario_id');
 
-        if ($this->chequeaUsuarioLogueado($request)){
-            if($this->isCsrfTokenValid('crear'.$this->getUser()->getId(),
-                $request->request->get('csrf'))){
-                if ($this->chequeaMismoUsuarioSesion($usuarioId)){
+        if ($this->chequeaUsuarioLogueado($request)) {
+            if ($this->isCsrfTokenValid('crear' . $this->getUser()->getId(),
+                $request->request->get('csrf'))) {
+                if ($this->chequeaMismoUsuarioSesion($usuarioId)) {
+                    $nombreArticulo = trim($request->request->get('nombre'));
+                    $stockArticulo = trim($request->request->get('stock'));
+                    $precioArticulo = trim($request->request->get('precio'));
+                    $descripcionArticulo = trim($request->request->get('descripcion'));
+                    $seccionSelected = trim($request->request->get('secciones'));
+                    $imagen = $request->files->get('imagen');
 
-                $nombreArticulo = trim($request->request->get('nombre'));
-                $stockArticulo = trim($request->request->get('stock'));
-                $precioArticulo = trim($request->request->get('precio'));
-                $descripcionArticulo = trim($request->request->get('descripcion'));
-                $seccionSelected = trim($request->request->get('secciones'));
-                $imagen = $request->files->get('imagen');
 
-
-                if ($this->validaArticulos($nombreArticulo,$stockArticulo, $precioArticulo, $descripcionArticulo, $seccionSelected)){
-                    $articulo = new Articulo();
-                    $articulo->setIdVendedor($this->getUser()->getIdVendedor());
-                    $articulo->setNombre($nombreArticulo);
-                    $articulo->setDescripcion($descripcionArticulo);
-                    $articulo->setStock($stockArticulo);
-                    $articulo->setPrecio($precioArticulo);
-                    $articulo->setIdSeccion($seccionSelected);
-                    if ($imagen){
-                    $tipoImagen = $imagen->guessExtension();
-                        if ($tipoImagen == "jpg" || $tipoImagen == "jpeg"
-                        || $tipoImagen == "png"){
-                        $tamanhoImagen = filesize($imagen);
-                            if ($tamanhoImagen <= 1060000){
-                                $directorioImagenes = $this->getParameter('directorio_foto_articulo');
-                                $nombreUnicoImagen = uniqid(). "-". $usuarioId . ".".$imagen->guessExtension();
-                                try{
-                                    $imagen->move($directorioImagenes,$nombreUnicoImagen);
-                                    $articulo->setFoto($nombreUnicoImagen);
-                                } catch (\Exception $e){
-                                    $this->addFlash('fail','Ha ocurrido un error subiendo la imagen.');
+                    if ($this->validaArticulos($nombreArticulo, $stockArticulo, $precioArticulo, $descripcionArticulo, $seccionSelected)) {
+                        $articulo = new Articulo();
+                        $articulo->setIdVendedor($this->getUser()->getIdVendedor());
+                        $articulo->setNombre($nombreArticulo);
+                        $articulo->setDescripcion($descripcionArticulo);
+                        $articulo->setStock($stockArticulo);
+                        $articulo->setPrecio($precioArticulo);
+                        $articulo->setIdSeccion($seccionSelected);
+                        if ($imagen) {
+                            //$tipoImagen = $imagen->guessExtension();
+                            if ($this->compruebaTipoImagen($imagen)) {
+                                //  $tamanhoImagen = filesize($imagen);
+                                if ($this->compruebaTamanoImagen($imagen)) {
+                                    $directorioImagenes = $this->getParameter('directorio_foto_articulo');
+                                    $nombreUnicoImagen = uniqid() . "-" . $usuarioId . "." . $imagen->guessExtension();
+                                    try {
+                                        $imagen->move($directorioImagenes, $nombreUnicoImagen);
+                                        $articulo->setFoto($nombreUnicoImagen);
+                                    } catch (\Exception $e) {
+                                        $this->addFlash('fail', 'Ha ocurrido un error subiendo la imagen.');
+                                    }
+                                } else {
+                                    $this->addFlash('fail', 'El tamaño de la imagen no puede exceder de 1MB');
+                                    return $this->redirectToRoute('articulo_new');
                                 }
-                            }else {
-                                $this->addFlash('fail','El tamaño de la imagen no puede exceder de 1MB');
+
+                            } else {
+                                $this->addFlash('fail', 'Solo se admiten imagenes tipo JPG, JPEG o PNG');
                                 return $this->redirectToRoute('articulo_new');
                             }
-
-                        } else {
-                            $this->addFlash('fail','Solo se admiten imagenes tipo JPG, JPEG o PNG');
-                            return $this->redirectToRoute('articulo_new');
                         }
-                    }
-                    try {
-                        $em->persist($articulo);
-                        $em->flush();
-                        $this->addFlash('success','Articulo creado exitosamente');
-                        return $this->redirectToRoute('articulo_show',['id'=>$articulo->getId()]);
 
-                    }catch (\Exception $e) {
-                        $this->addFlash('fail','No se ha podido crear el articulo, intentalo de nuevo mas tarde.');
-                        return $this->redirectToRoute('index');
+                        try {
+                            $em->persist($articulo);
+                            $em->flush();
+                            $this->addFlash('success', 'Articulo creado exitosamente');
+                            return $this->redirectToRoute('articulo_show', ['id' => $articulo->getId()]);
+
+                        } catch (\Exception $e) {
+                            $this->addFlash('fail', 'No se ha podido crear el articulo, intentalo de nuevo mas tarde.');
+                            return $this->redirectToRoute('index');
+                        }
+                    } else {
+                        $this->addFlash('fail', 'Existen campos no validos en los detalles del articulo que intentaste crear, intentalo de nuevo.');
+                        return $this->redirectToRoute('articulo_new');
                     }
-                } else {
-                    $this->addFlash('fail','Existen campos no validos en los detalles del articulo que intentaste crear, intentalo de nuevo.');
-                    return $this->redirectToRoute('articulo_new');
-                }
 
                 } else {
-                    $this->addFlash('fail','Solo puedes agregar articulos tuyos.');
+                    $this->addFlash('fail', 'Solo puedes agregar articulos tuyos.');
                     return $this->redirectToRoute('index');
 
                 }
             } else {
-                $this->addFlash('fail','Ha ocurrido un error verificando el token de seguridad.');
+                $this->addFlash('fail', 'Ha ocurrido un error verificando el token de seguridad.');
                 return $this->redirectToRoute('index');
 
             }
         } else {
-            $this->addFlash('fail','Debes iniciar sesion para crear articulos.');
+            $this->addFlash('fail', 'Debes iniciar sesion para crear articulos.');
             return $this->redirectToRoute('app_login');
         }
 
@@ -306,20 +310,21 @@ class ArticuloController extends AbstractController
      */
     public function show(Articulo $articulo,
                          ValoracionRepository $valoracionRepository,
-                        DetalleRepository $detalleRepository): Response
+                         DetalleRepository $detalleRepository): Response
     {
+
         $ventasArticulo = $detalleRepository->findVentasByArticuloId($articulo->getId());
         $estaValorado = 0;
         $valoracion = 0;
-        if ($valoracionRepository->findValoracionItemsById($articulo->getId())){
-            $valoracion = round($valoracionRepository->findValoracionItemsById($articulo->getId()),1);
+        if ($valoracionRepository->findValoracionItemsById($articulo->getId())) {
+            $valoracion = round($valoracionRepository->findValoracionItemsById($articulo->getId()), 1);
             $estaValorado = 1;
         }
 
         return $this->render('articulo/show.html.twig', [
             'articulo' => $articulo,
             'ventas' => $ventasArticulo,
-            'estaValorado'=> $estaValorado,
+            'estaValorado' => $estaValorado,
             'valoracion' => $valoracion,
         ]);
     }
@@ -342,46 +347,101 @@ class ArticuloController extends AbstractController
      * @return \Symfony\Component\HttpFoundation\RedirectResponse|Response
      */
     public function mostrarTodosLosArticulosPorUsuario(int $id, int $pagina,
-                   ArticuloRepository $articuloRepository, UsuarioRepository $usuarioRepository, SecurityManager $securityManager,
-                   Request $request)
+                                                       ArticuloRepository $articuloRepository, UsuarioRepository $usuarioRepository, SecurityManager $securityManager,
+                                                       Request $request)
     {
-        $ELEMENTOS_POR_PAGINA = 8;
-        if ($securityManager->chequeaUsuarioSolicitud($request,$id)){
-            if ($usuarioSolicitud = $usuarioRepository->find($id)){
+        $ELEMENTOS_POR_PAGINA = 4;
+        if ($securityManager->chequeaUsuarioSolicitud($request, $id)) {
+            if ($usuarioSolicitud = $usuarioRepository->find($id)) {
                 $totalArticulosVendedor = $articuloRepository->
                 NumeroArticulosPorVendedor($usuarioSolicitud->getIdVendedor());
                 $numero_paginas = 1;
-                $totalArticulosVendedor > 0 ? $numero_paginas=ceil($totalArticulosVendedor/$ELEMENTOS_POR_PAGINA) : $numero_paginas = 1;
-                if ($pagina<1){
+                $totalArticulosVendedor > 0 ? $numero_paginas = ceil($totalArticulosVendedor / $ELEMENTOS_POR_PAGINA) : $numero_paginas = 1;
+                if ($pagina < 1) {
                     $pagina = 1;
-                    return $this->redirectToRoute('articulos_usuario',['id'=>$id,'pagina'=> $pagina]);
+                    return $this->redirectToRoute('articulos_usuario', ['id' => $id, 'pagina' => $pagina]);
                 }
-                if ($pagina>$numero_paginas){
-                    return $this->redirectToRoute('articulos_usuario',['id'=>$id,'pagina'=> $numero_paginas]);
+                if ($pagina > $numero_paginas) {
+                    return $this->redirectToRoute('articulos_usuario', ['id' => $id, 'pagina' => $numero_paginas]);
                 }
-                return $this->render('articulo/articulos.html.twig',[
-                    'articulos' => $articuloRepository->buscarArticulosPorVendedor($usuarioSolicitud->getIdVendedor(),$pagina,$ELEMENTOS_POR_PAGINA) ,
+                return $this->render('articulo/articulos.html.twig', [
+                    'articulos' => $articuloRepository->buscarArticulosPorVendedor($usuarioSolicitud->getIdVendedor(), $pagina, $ELEMENTOS_POR_PAGINA),
                     'usuario' => $usuarioSolicitud,
                     'pagina_actual' => $pagina,
                     'total_elementos' => $totalArticulosVendedor,
                     'numero_paginas' => $numero_paginas,
                 ]);
-            } else{
-                $this->addFlash('fail','No se ha encontrado el vendedor.');
-                return  $this->redirectToRoute('index');
+            } else {
+                $this->addFlash('fail', 'No se ha encontrado el vendedor.');
+                return $this->redirectToRoute('index');
             }
         } else {
-            $this->addFlash('fail','Solo puedes ver tus articulos.');
-            return  $this->redirectToRoute('index');
+            $this->addFlash('fail', 'Solo puedes ver tus articulos.');
+            return $this->redirectToRoute('index');
         }
     }
 
+    /**
+     * @Route("/elimimar-articulo", name="eliminar_articulo", methods={"DELETE"})
+     * @param ArticuloRepository $articuloRepository
+     * @param UsuarioRepository $usuarioRepository
+     * @param SecurityManager $securityManager
+     * @param Request $request
+     * @return \Symfony\Component\HttpFoundation\RedirectResponse
+     */
+    public function eliminarArticulo(ArticuloRepository $articuloRepository,
+                                     UsuarioRepository $usuarioRepository,
+                                     SecurityManager $securityManager, Request $request)
+    {
+        $idArticulo = $request->request->get('idArticulo');
+        $idUsuario = $request->request->get('idUsuario');
+        if (!$securityManager->chequeaUsuarioSolicitud($request, $idUsuario)) {
+            $this->addFlash('fail', 'Debes iniciar sesion para eliminar articulos, y si ya has iniciado solo puedes eliminar tus articulos');
+            return $this->redirectToRoute('index');
+        }
+        $articuloEliminar = $articuloRepository->find($idArticulo);
+        if ($articuloEliminar == null) {
+            $this->addFlash('fail', 'El articulo que deseas eliminar no ha sido encontrado, intentalo mas tarde.');
+            return $this->redirectToRoute('index');
+        }
+        $usuarioSolicitud = $usuarioRepository->find($idUsuario);
+        if ($usuarioSolicitud->getIdVendedor() != $articuloEliminar->getIdVendedor()) {
+            $this->addFlash('fail', 'Este articulo no te pertenece, solo puedes eliminar tus articulos.');
+            return $this->redirectToRoute('index');
+        }
+        $errorBorrandoArticulo = false;
+        $em = $this->getDoctrine()->getManager();
+        try {
+            $em->remove($articuloEliminar);
+            $em->flush();
+            $this->addFlash('success', 'Articulo eliminado.');
+            // return  $this->redirectToRoute('perfil_usuario',['id'=>$idUsuario]);
+        } catch (\Exception $e) {
+            $this->addFlash('fail', 'Ha ocurrido un problema, no se pudo eliminar tu articulo. Es probable es que ya ha sido comprado, puedes desabilitarlo estableciendo su stock a 0.');
+            // $errorBorrandoArticulo = true;
+            return $this->redirectToRoute('perfil_usuario', ['id' => $idUsuario]);
+        }
+        if ($articuloEliminar->getFoto() != null) {
+            try {
+                $fs = new Filesystem();
+                $fs->remove($this->getParameter('directorio_foto_articulo') . '/' . $articuloEliminar->getFoto());
+                $this->addFlash('success', 'Foto eliminada.');
+            } catch (\Exception $e) {
+                $this->addFlash('fail', 'Ha ocurrido un error eliminando la imagen del sistema');
+            }
+        }
+        return $this->redirectToRoute('perfil_usuario', ['id' => $idUsuario]);
+
+    }
+
+
+
     public function validaArticulos($nombre, $stock, $precio, $descripcion, $seccionSelected): bool
     {
-        if ($nombre != null && $stock != null && $precio != null && $descripcion != null && $seccionSelected != null){
-            if (!empty($nombre) && !empty($stock) && !empty($precio) && !empty($descripcion) && !empty($seccionSelected)){
+        if ($nombre != null && $stock != null && $precio != null && $descripcion != null && $seccionSelected != null) {
+            if (!empty($nombre) && !empty($precio) && !empty($descripcion) && !empty($seccionSelected)) {
                 return true;
-            }  else {
+            } else {
                 return false;
             }
         } else {
@@ -392,7 +452,7 @@ class ArticuloController extends AbstractController
 
     public function chequeaMismoUsuarioSesion($idUsuarioSolicitud)
     {
-        if($this->getUser()->getId() == $idUsuarioSolicitud) {
+        if ($this->getUser()->getId() == $idUsuarioSolicitud) {
             return true;
         } else {
             return false;
@@ -401,10 +461,9 @@ class ArticuloController extends AbstractController
 
     public function chequeaUsuarioLogueado(Request $request): bool
     {
-        if( $request->getSession() && $this->getUser() != null) {
+        if ($request->getSession() && $this->getUser() != null) {
             return true;
-        }
-        else {
+        } else {
             return false;
         }
     }
@@ -412,37 +471,37 @@ class ArticuloController extends AbstractController
     public function compruebaTipoImagen($imagen)
     {
         $tipoImagen = $imagen->guessExtension();
-        if ($tipoImagen == "jpg" || $tipoImagen == "jpeg" || $tipoImagen == "png"){
+        if ($tipoImagen == "jpg" || $tipoImagen == "jpeg" || $tipoImagen == "png") {
             return true;
         } else {
             return false;
         }
     }
+
 
     public function compruebaTamanoImagen($imagen)
     {
         $tamanhoImagen = filesize($imagen);
-        if ($tamanhoImagen <= 1060000){
+        if ($tamanhoImagen <= 1060000) {
             return true;
         } else {
             return false;
         }
     }
 
-    public function ChequeaPropiedadArticulo($idVendedorArticulo,$usuarioId, UsuarioRepository $usuarioRepository)
+    public function ChequeaPropiedadArticulo($idVendedorArticulo, $usuarioId, UsuarioRepository $usuarioRepository)
     {
         $usuarioActual = $usuarioRepository->find($usuarioId);
-        if ($usuarioActual == null){
-            $this->addFlash('fail','El sueño del articulo no ha sido encontrado');
+        if ($usuarioActual == null) {
+            $this->addFlash('fail', 'El sueño del articulo no ha sido encontrado');
             return $this->redirectToRoute('index');
         }
-        if ((int)$idVendedorArticulo != $usuarioActual->getIdVendedor()){
+        if ((int)$idVendedorArticulo != $usuarioActual->getIdVendedor()) {
             return false;
         } else {
             return true;
         }
     }
-
 
 
 }

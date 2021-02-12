@@ -43,7 +43,7 @@ class Articulo
     private $precio;
 
     /**
-     * @ORM\Column(type="string", length=150)
+     * @ORM\Column(type="integer")
      */
     private  $id_seccion;
 
@@ -53,7 +53,7 @@ class Articulo
     private $foto;
 
     /**
-     * @ORM\Column(type="float", )
+     * @ORM\Column(type="float" )
      */
     private $valoracion;
 

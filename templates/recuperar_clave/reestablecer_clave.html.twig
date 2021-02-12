@@ -26,12 +26,18 @@
         $(document).ready(function () {
             clavesIguales= false
 
-        $('#clave').on("keyup change",function () {
+        $('#clave').on("keyup change keypress",function (e) {
+            if(e.which === 32){
+                return false;
+            }
             comparaClave($('#clave').val(),$('#clave2').val())
             clavesIguales ? $('.errorClave').html('Coinciden las claves').addClass('text-success').removeClass('text-danger') : $('.errorClave').html('Las claves no coinciden o tienen menos de 8 caracteres').addClass('text-danger')
         })
 
-        $('#clave2').on("keyup change", ()=>{
+        $('#clave2').on("keyup change keypress", (e)=>{
+            if(e.which === 32){
+                return false;
+            }
             comparaClave($('#clave').val(),$('#clave2').val())
             clavesIguales ? $('.errorClave').html('Coinciden las claves').addClass('text-success').removeClass('text-danger') : $('.errorClave').html('Las claves no coinciden o tienen menos de 8 caracteres').addClass('text-danger')
         })

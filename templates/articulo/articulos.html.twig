@@ -27,11 +27,21 @@
                 <td>{{ articulo.stock }}</td>
                 <td>{{ articulo.precio }}</td>
                 <td>
-                    <div class="text-center">
+                    <div class="text-center d-flex justify-content-around">
                         <a href="{{ path('editar_articulo_get', {'usuario' : usuario.id, 'id': articulo.id}) }}">
                             <img src="{{ asset('imagenes_aplicacion/edit.png') }}" alt="Editar" title="Editar">
                         </a>
+                        <form action="{{ path('eliminar_articulo') }}" method="post" onsubmit="return confirm('Estas seguro de eliminar este articulo?');">
+                            <input type="hidden" name="_method" value="DELETE">
+                            <input type="hidden" name="idArticulo" value="{{ articulo.id }}">
+                            <input type="hidden" name="idUsuario" value="{{ usuario.id }}">
+                            <button type="submit" class="text-decoration-none">
+                                <img src="{{ asset('imagenes_aplicacion/eliminar.png') }}"
+                                     alt="Eliminar" title="Eliminar">
+                            </button>
+                        </form>
                     </div>
+
                 </td>
             </tr>
         {% else %}

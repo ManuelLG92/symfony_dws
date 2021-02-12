@@ -4,7 +4,7 @@
 
 {% block body %}
 
-    <div class="container">
+    <div class="container contenedor p-3 rounded">
         <h1>Crear usuario</h1>
         {% include 'usuario/_formulario.html.twig' with
             {'accion' : path('nuevo_usuario'), modo : modo} %}

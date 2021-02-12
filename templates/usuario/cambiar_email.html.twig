@@ -5,7 +5,9 @@
 {% block body %}
 
 <div class="container col-10 col-md-4 contenedor p-3 rounded">
-    <form action="#" method="post" id="cambiarEmail" autocomplete="off">
+
+
+    <form action="{{ path('cambiar_email_post') }}" method="post" id="cambiarEmail" autocomplete="off">
 
         <input type="hidden" name="idUsuario" value="{{ app.user.id }}">
         <label for="emailActual" class="mb-1">Introduce tu email actual: </label>

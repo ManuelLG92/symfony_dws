@@ -66,18 +66,11 @@
         <input type="hidden" name="usuario_id" value="{{ app.user.id }}">
             {% if modo == 'crear' %}
             <input type="hidden" name="csrf" value="{{ csrf_token('crear' ~ app.user.id) }}">
-            {#{{ dump(csrf_token('crear' ~ app.user.id )) }}
-            {{ dump(modo) }}#}
-              {#  <div class="mb-3">
-                    <label for="imagen" class="form-label">Imagen (opcional)</label>
-                    <input class="form-control" type="file" id="imagen" name="imagen">
-                </div>#}
             {% endif %}
 
             {% if modo == 'editar' %}
                 <input type="hidden" name="csrf" value="{{ csrf_token('editar' ~ app.user.id) }}">
-                {#{{ dump(csrf_token('editar' ~ app.user.id )) }}
-                {{ dump(modo) }}#}
+
                 {% if articulo.foto is null %}
                     <p>Tu articulo no tiene ninguna foto, puedes agregar una si lo deseas en el siguiente campo.</p>
                 {% else %}
@@ -89,18 +82,13 @@
                 {% endif %}
                 <p>Solo permite formato JPG, JPEG y PNG, la foto debe pesar menos de 1 MB.</p>
 
-                {#<div class="text-center">
-                <img src="{{ asset('imagenes_articulos/jquery.png') }}" alt="jquery" width="240px" id="imagen">
-                </div>#}
                 <input type="hidden" name="_method" value="PUT">
             {% endif %}
             <div class="mb-3">
                 <label for="imagen" class="form-label">Imagen (opcional)</label>
                 <input class="form-control" type="file" id="imagen" name="imagen">
             </div>
-        {#<div class="col-12 mt-3 text-center">
-            <button class="btn btn-primary w-25" id="btn" type="submit">{{ btn_form|default('Crear')}}</button>
-        </div>#}
+
     </div>
      <div class="col-12 mt-3 text-center">
          <input class="btn btn-primary w-25" type="button" value="{{ btn_form|default('Crear')}}" id="enviar">

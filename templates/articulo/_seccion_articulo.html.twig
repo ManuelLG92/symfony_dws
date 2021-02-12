@@ -63,5 +63,18 @@
             <h4>Aun no hay elementos en esta seccion</h4>
         {% endfor %}
         <hr>
+
     </div>
 </div>
+
+{#
+{% if seccion|length > 0 %}
+    <div class="text-center mt-3 mb-3">
+        <h5>Si quieres ver todos los productos de esta seccion
+            <a href="{{ path('articulos_seccion', {'seccion' : idSeccion }) }}"
+               target="_blank">
+                pincha aqui.
+            </a>
+        </h5>
+    </div>
+{% endif %}#}

@@ -40,6 +40,7 @@ class UsuarioManager
             return false;
         }
     }
+
     public function compruebaCamposDireccion ($via, $nombre_via,  $numero, $ciudad, $estado, $cp,$pais) : bool
     {
         if ($via != null && $nombre_via != null && $numero != null && $ciudad!= null && $estado != null && $cp != null && $pais != null) {
@@ -65,16 +66,18 @@ class UsuarioManager
             return false;
         }
     }
-    public function compruebaCamposDireccionValidate(Direccion $direccion) {
+
+   /* public function compruebaCamposDireccionValidate(Direccion $direccion) {
     $errores = $this->validator->validate($direccion);
     return $errores;
-    }
+    }*/
 
     public function crearUsuario(Usuario $usuario)
     {
         $this->em->persist($usuario);
         $this->em->flush();
     }
+
     public function crearDireccion(Direccion $direccion)
     {
         $this->em->persist($direccion);

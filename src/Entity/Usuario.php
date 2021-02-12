@@ -51,8 +51,7 @@ class Usuario implements UserInterface
      */
     private $banco;
 
-    // @ORM\OneToOne(targetEntity=Vendedor::class, mappedBy="id_usuario", cascade={"persist", "remove"})
-   // private $id_vendedor;
+
 
     /**
      * @ORM\Column(type="string", length=150)

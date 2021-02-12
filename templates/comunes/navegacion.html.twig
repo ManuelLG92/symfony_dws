@@ -8,6 +8,7 @@
             <a class="nav-link text-white fs-5 " aria-current="page" href="{{ path('about') }}">Nosotros</a>
             <a class="nav-link text-white fs-5 " aria-current="page" href="{{ path('contacto') }}">Contacto</a>
         </div>
+
             {% if app.user %}
 
                     <div class="dropdown justify-content-center">
@@ -18,7 +19,7 @@
                         <span>
                             <a href="{{ path('carro_get',{ 'id' : app.user.id } ) }}" class="text-decoration-none text-success ">
 
-                                <img src="{{ asset('cesta.png') }}" alt="Cesta de compra">
+                                <img src="{{ asset('imagenes_aplicacion/cesta.png') }}" alt="Cesta de compra">
                             {% if app.session.get('carro')%}
                                  <span id="nroItems" class="position-absolute top-0 start-100 translate-middle badge rounded-pill text-white mt-1">
                                      {{ app.session.get('carro') }}
@@ -80,6 +81,5 @@
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
     {% endfor %}
-
 
 </div>

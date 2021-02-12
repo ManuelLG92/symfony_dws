@@ -22,13 +22,19 @@ class RecuperarClaveController extends AbstractController
     /**
      * @Route("/recuperar-clave", name="recuperar_clave", methods = { "GET" })
      */
-    public function enviarEmail(): Response
+    public function enviarEmailRecuperacionClave(): Response
     {
+        if ($this->getUser()){
+            $this->addFlash('fail','Debes cerrar sesion para recuperar tu contraseña.');
+            return $this->redirectToRoute('index');
+        }
         return $this->render('recuperar_clave/recuperar_clave.html.twig');
     }
 
     /**
-     * @Route("/datos-recuperar-clave", name="datos_recuperar_clave", methods = { "POST"})
+     * @Route("/datos-recuperar-clave",
+     *     name="datos_recuperar_clave",
+     *     methods = { "POST"})
      * @param Mailer $mailer
      * @param RecuperacionRepository $recuperacionRepository
      * @param UsuarioRepository $usuarioRepository
@@ -39,21 +45,23 @@ class RecuperarClaveController extends AbstractController
                                         UsuarioRepository $usuarioRepository,
                                         Request $request ): Response
     {
+        if ($this->getUser()){
+            $this->addFlash('fail','Debes cerrar sesion para recuperar tu contraseña.');
+            return $this->redirectToRoute('index');
+        }
 
         $email = trim($request->request->get('email'));
         if($usuario = $usuarioRepository->findByEmail($email)){
-
             $recuperacionClave = $this->generaRecuperacion($usuario, $recuperacionRepository);
-
             $urlToken = $mailer->generarUrlActivacionUsuario($recuperacionClave->getToken());
-            $htmlContenido = '<p>Este es el link para reestablecer tu contraseña: ' . $urlToken . ' Tiene 24 horas de validez</p>';
+            $htmlContenido = '<p>Este es el link para reestablecer tu contraseña: ' . $urlToken . ' Tiene 24 horas de validez.</p>';
             $mailer->enviarEmail($email,"Recuperacion contraseña",$htmlContenido);
 
             $this->addFlash('success',
                 'Hemos enviado un correo al email "'. $email .'" con un link para reestablecer
                 su contraseña, es valido por un dia. Revise la bandeja de correos no deseados o spam.');
             return $this->
-            redirectToRoute('recuperar_clave');
+            redirectToRoute('index');
         } else {
             $this->addFlash('fail',
                 'El email "'. $email .'" no ha sido encontrado como usuario. Verifique
@@ -106,7 +114,7 @@ class RecuperarClaveController extends AbstractController
             $this->addFlash('fail', 'Es necesario cerrar sesion para reestablecer una contraseña.');
             return $this->redirectToRoute('index');
         } else {
-        if($token = $recuperacionRepository->findByToken($token)){
+        if($token = $recuperacionRepository->findByToken(trim($token))){
             $fechaActual = new \DateTime();
             if ($fechaActual < $token->getFecha()) {
                 $emailRecuperacion = $usuarioRepository->findById($token->getIdUsuario())->getEmail();

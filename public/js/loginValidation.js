@@ -12,7 +12,10 @@ $(document).ready(function(){
     }
     $(selectorClave).val().length > 7 && $(selectorClave).val().length < 33 ? claveError = false : claveError = true
 
-    $(selectorEmail).keyup(()=>{
+    $(selectorEmail).on('keyup change keypress',(e)=>{
+        if(e.which === 32){
+            return false;
+        }
         validarEmail($(selectorEmail).val()) ? emailError = false : emailError = true
 
         mostrarErrores(emailError,selectorEmail,selectorMsgErrorEmail,
@@ -20,7 +23,10 @@ $(document).ready(function(){
 
     })
 
-    $(selectorClave).keyup(()=>{
+    $(selectorClave).on('keyup change keypress',(e)=>{
+        if(e.which === 32){
+            return false;
+        }
         $(selectorClave).val().length > 7 && $(selectorClave).val().length < 33? claveError = false : claveError = true
        mostrarErrores(claveError,selectorClave,selectorMsgErrorClave,
            "Clave valida","La clave debe tener de 8 a 32 caracteres.")

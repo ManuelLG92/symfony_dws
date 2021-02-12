@@ -57,7 +57,8 @@ class FacturaController extends AbstractController
                         'articuloId'=> $articulo->getId(),'precio' => $detalle->getPrecio(),
                         'total'=>$detalle->getTotal(),  'idVendedor'=> $vendedor->getId(),
                         'vendedor'=>$nombreVendedor, 'idDetalle'=>$detalle->getId(),
-                        'valor' => $valoracionArticuloValor, 'idValoracion' => $idValoracion
+                        'valor' => $valoracionArticuloValor, 'idValoracion' => $idValoracion,
+                            'perfilVendedor' => $vendedor->getIdVendedor(),
                         ];
                 }
                 $valoracionesUsuario = [];

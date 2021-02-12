@@ -44,7 +44,7 @@ function actualizaCantidad(inputCantidad,precio,stock, inputTotal, inputHiden) {
             totalCompra += parseInt($(value).val())
             console.log($(value).val())
         })
-        $('#totalCompra').html("Total de tu compra: " + totalCompra)
+        $('#totalCompra').html("Total de tu compra: " + totalCompra + " BC.")
        // $('#total').val(totalCompra)
 
     }

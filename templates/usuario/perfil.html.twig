@@ -14,7 +14,8 @@
             {{ direccion.estado|capitalize }}, {{ direccion.pais|capitalize }} </p>
         <input type="hidden" name="idUsuario" value="{{ usuario.id }}">
         <div>
-            <a href="{{ path('editar_usuario_post', { 'id' : usuario.id}) }}" class="text-dark">Aqui puedes modificar tus datos personales
+            <a href="{{ path('editar_usuario_post', { 'id' : usuario.id}) }}" class="text-dark">Aqui puedes modificar
+                tus datos personales
             </a>
         </div>
 
@@ -29,91 +30,101 @@
 
 
         <hr>
-    <div class="text-center">
-        <h3 class="mt-3">Tus articulos</h3>
+        <div class="text-center">
+            <h3 class="mt-3">Tus articulos</h3>
 
-        <table class="table w-75 mx-auto">
-        <thead>
-        <tr>
-            <th scope="col" class="col-2">Id</th>
-            <th scope="col" class="col-2">Nombre</th>
-            <th scope="col" class="col-2">Stock</th>
-            <th scope="col" class="col-2">Precio</th>
-            <th scope="col" class="col-2">Opciones</th>
-        </tr>
-        </thead>
-        <tbody>
-        {% for articulo in articulos %}
-            <tr>
-                <td>{{ articulo.id }}</td>
-                <td>{{ articulo.nombre }}</td>
-                <td>{{ articulo.stock }}</td>
-                <td>{{ articulo.precio }}</td>
-                <td>
-                    <div class="text-center">
-                    <a href="{{ path('editar_articulo_get', {'usuario' : usuario.id, 'id': articulo.id}) }}">
-                        <img src="{{ asset('imagenes_aplicacion/edit.png') }}" alt="Editar" title="Editar">
-                    </a>
-                    </div>
-                </td>
-            </tr>
-        {% else %}
-            <tr>
-                <td colspan="5" class="text-center">Aun no has creado ningun articulo, crea uno pinchando
-                    <a href="{{ path('articulo_new') }}"> ¡aqui!</a></td>
-            </tr>
-        {% endfor %}
-        </tbody>
+            <table class="table w-75 mx-auto">
+                <thead>
+                <tr>
+                    <th scope="col" class="col-2">Id</th>
+                    <th scope="col" class="col-2">Nombre</th>
+                    <th scope="col" class="col-2">Stock</th>
+                    <th scope="col" class="col-2">Precio</th>
+                    <th scope="col" class="col-2">Opciones</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for articulo in articulos %}
+                    <tr>
+                        <td><a href="{{ path("articulo_show",{'id': articulo.id}) }}" class="text-dark">{{ articulo.id }}</a></td>
+                        <td>{{ articulo.nombre }}</td>
+                        <td>{{ articulo.stock }}</td>
+                        <td>{{ articulo.precio }}</td>
+                        <td>
+                            <div class="text-center d-flex justify-content-around">
+                                <a href="{{ path('editar_articulo_get', {'usuario' : usuario.id, 'id': articulo.id}) }}">
+                                    <img src="{{ asset('imagenes_aplicacion/edit.png') }}" alt="Editar" title="Editar">
+                                </a>
+                                <form action="{{ path('eliminar_articulo') }}" method="post" onsubmit="return confirm('Estas seguro de eliminar este articulo?');">
+                                    <input type="hidden" name="_method" value="DELETE">
+                                    <input type="hidden" name="idArticulo" value="{{ articulo.id }}">
+                                    <input type="hidden" name="idUsuario" value="{{ usuario.id }}">
+                                    <button type="submit" class="text-decoration-none">
+                                    <img src="{{ asset('imagenes_aplicacion/eliminar.png') }}"
+                                                     alt="Eliminar" title="Eliminar">
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="5" class="text-center">Aun no has creado ningun articulo, crea uno pinchando
+                            <a href="{{ path('articulo_new') }}"> ¡aqui!</a></td>
+                    </tr>
+                {% endfor %}
+                </tbody>
             </table>
         </div>
         {% if articulos|length > 4 %}
             <p class="text-center">Estos son tus articulos mas recientes, si quieres ver todos tus articulos pincha
                 <a href="{{ path('articulos_usuario', {'id': usuario.id }) }}"><strong>¡aqui!</strong></a></p>
         {% endif %}
-        <h5 class="text-center">Puedes agregar un nuevo producto pinchando <a href="{{ path('articulo_new') }}">¡aqui!</a></h5>
+        <h5 class="text-center">Puedes agregar un nuevo producto pinchando <a
+                    href="{{ path('articulo_new') }}">¡aqui!</a></h5>
         <hr>
         <div class="text-center">
-        <h3>Tus ventas:</h3>
-        {% if vendedor.getNumeroVentas() == 0 %}
-        <p>Aun no tienes ninguna venta.</p>
-        {% else %}
-            <table class="table w-75 mx-auto">
-                <thead>
-                <tr>
-                    <th scope="col">Id Producto</th>
-                    <th scope="col">Unidades vendidas</th>
-                    <th scope="col">Importe total </th>
-                </tr>
-                </thead>
-                <tbody>
-            {% for venta in ventas %}
-                <tr>
-                    <td>
-                        <a href="{{ path('articulo_show', {'id': venta.id_articulo }) }}"
-                        class="text-decoration-none text-dark">
-                            {{ venta.id_articulo }}
-                        </a>
-                    </td>
-                    <td>{{ venta.2 }}</td>
-                    <td>{{ venta.1 }} BC</td>
-                </tr>
-            {% endfor %}
+            <h3>Tus ventas:</h3>
+            {% if vendedor.getNumeroVentas() == 0 %}
+                <p>Aun no tienes ninguna venta.</p>
+            {% else %}
+                <table class="table w-75 mx-auto">
+                    <thead>
+                    <tr>
+                        <th scope="col">Id Producto</th>
+                        <th scope="col">Unidades vendidas</th>
+                        <th scope="col">Importe total</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for venta in ventas %}
+                        <tr>
+                            <td>
+                                <a href="{{ path('articulo_show', {'id': venta.id_articulo }) }}"
+                                   class="text-decoration-none text-dark">
+                                    {{ venta.id_articulo }}
+                                </a>
+                            </td>
+                            <td>{{ venta.2 }}</td>
+                            <td>{{ venta.1 }} BC</td>
+                        </tr>
+                    {% endfor %}
 
-                </tbody>
+                    </tbody>
 
-            </table>
-            {% if ventas|length > 4 %}
-                <p class="text-center">Estos son tus ventas mas recientes, si quieres ver todas tus ventas pincha
-                    <a href="{{ path('ventas_usuario', {'id': usuario.id }) }}"><strong>¡aqui!</strong></a></p>
+                </table>
+                {% if ventas|length > 4 %}
+                    <p class="text-center">Estos son tus ventas mas recientes, si quieres ver todas tus ventas pincha
+                        <a href="{{ path('ventas_usuario', {'id': usuario.id }) }}"><strong>¡aqui!</strong></a></p>
+
+                {% endif %}
+                <div>
+                    <h5>En total has vendido <strong>{{ vendedor.getNumeroVentas() }} articulos</strong>,
+                        generando un importe de <strong>{{ vendedor.getImporteVentas() }} BC</strong>. Felicitaciones!
+                    </h5>
+                </div>
 
             {% endif %}
-            <div>
-                <h5>En total has vendido <strong>{{ vendedor.getNumeroVentas() }} articulos</strong>,
-                    generando un importe de <strong>{{ vendedor.getImporteVentas() }} BC</strong>. Felicitaciones!
-                </h5>
-            </div>
-
-        {% endif %}
         </div>
 
 
@@ -122,32 +133,32 @@
         <div class="text-center">
             <h3>Tus compras:</h3>
             <table class="table w-75 mx-auto">
-        <thead>
-            <tr>
-                <th scope="col" class="col-4"># </th>
-                <th scope="col" class="col-4">Importe</th>
-                <th scope="col" class="col-4">Fecha</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for  factura in facturas %}
+                <thead>
                 <tr>
-                    <th scope="row" class="col-4">
-                        <a href="{{ path('factura', {'id': factura.id, 'usuario' : usuario.id }) }}"
-                           class="text-decoration-none text-dark" target="_blank">
-                            {{ factura.id }}
-                        </a>
-                    </th>
-                    <td class="col-4" >{{ factura.importe }} BC</td>
-                    <td class="col-4" >{{ factura.fecha|date("m/d/Y") }}</td>
+                    <th scope="col" class="col-4">#</th>
+                    <th scope="col" class="col-4">Importe</th>
+                    <th scope="col" class="col-4">Fecha</th>
                 </tr>
-            {% else %}
-                <tr>
-                    <td colspan="3" class="text-center">aun no tienes compras</td>
-                </tr>
-            {% endfor %}
-        </tbody>
-        </table>
+                </thead>
+                <tbody>
+                {% for  factura in facturas %}
+                    <tr>
+                        <th scope="row">
+                            <a href="{{ path('factura', {'id': factura.id, 'usuario' : usuario.id }) }}"
+                               class="text-decoration-none text-dark">
+                                {{ factura.id }}
+                            </a>
+                        </th>
+                        <td class="col-4">{{ factura.importe }} BC</td>
+                        <td class="col-4">{{ factura.fecha|date("m/d/Y") }}</td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="3" class="text-center">aun no tienes compras</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
             {% if facturas|length > 4 %}
                 <p class="text-center">Estos son tus facturas mas recientes, si quieres ver todas tus facturas pincha
                     <a href="{{ path('facturas_usuario', {'id': usuario.id }) }}"><strong>¡aqui!</strong></a></p>
@@ -163,9 +174,9 @@
 
         <hr>
         <div class="text-center">
-        <h3>Finanzas: </h3>
-        <h5>Tienes <strong>{{ usuario.banco.getBalance() }}</strong> Buy Coins (BC).</h5>
-        <h5></h5>
+            <h3>Finanzas: </h3>
+            <h5>Tienes <strong>{{ usuario.banco.getBalance() }}</strong> Buy Coins (BC).</h5>
+            <h5></h5>
         </div>
 
     </div>

@@ -37,6 +37,7 @@ class CarroController extends AbstractController
      * @param Request $request
      * @param EntityManagerInterface $em
      * @return Response
+     * //Se realiza mediante AJAX
      * Codigos de respuesta:
      * 1 => articulo agregado al carro
      * 2 => no hay unidades disponibles
@@ -59,7 +60,7 @@ class CarroController extends AbstractController
                           //  $carroCompraUsuario = $carroRepository->findOneByIdUsuario($usuarioSolicitud);
                             if ($carroCompraUsuario = $carroRepository->
                             findOneByIdUsuario($usuarioSolicitud)){
-                                if ($itemsRepository->findItemsByCarroIdAndArticuloId($carroCompraUsuario->getId(),$articulo->getId())){
+                                if ($itemsRepository->findItemByCarroIdAndArticuloId($carroCompraUsuario->getId(),$articulo->getId())){
                                     return $this->json(['respuesta' => 3]);
                                 }
                                 $agregarArticuloAlCarro = new Items();
@@ -107,16 +108,14 @@ class CarroController extends AbstractController
                         } else {
                             return $this->json(['respuesta' => 2]);
                         }
-                       // return $this->json(['respuesta' => "Valido. articulo encontrado"]);
+
                     } else {
                         return $this->json(['respuesta' => 4]);
                     }
-                //return $this->json(['respuesta' => "si"]);
                 }
         }
 
             return $this->json(['respuesta' => 5]);
-
 
     }
 
@@ -140,6 +139,7 @@ class CarroController extends AbstractController
     {
         $articulosEnCarro = [];
         if($securityManager->chequeaUsuarioSolicitud($request,$id)){
+
             if($carroVista = $securityManager->
             chequeaPropiedadCarro($id, $carroRepository)){
                         if ($itemsEnCarro =
@@ -160,15 +160,13 @@ class CarroController extends AbstractController
                         }
 
                 }else {
-                    return $this->render('carro/carro.html.twig', [
-                        'articulos' => 'Este carro no existe o no te pertenece',
-                    ]);
+                $this->addFlash('fail','Aun no hay elementos en tu carro, agrega algun articulo.');
+                   return  $this->redirectToRoute('index');
                 }
 
         }else {
-            return $this->render('carro/carro.html.twig', [
-                'articulos' => 'Diferente usuario en la solicitud',
-            ]);
+            $this->addFlash('fail','Este carro no te pertenece');
+            return  $this->redirectToRoute('index');
         }
     }
 
@@ -197,6 +195,7 @@ class CarroController extends AbstractController
         $idArticulo = "";
         $idUsuarioCompra = $parametros["id_usuario"];
         $importeCompra = $parametros["total"];
+
         if($securityManager->chequeaUsuarioSolicitud($request,$idUsuarioCompra)) {
 
             $usuarioCompra = $usuarioRepository->find($this->getUser()->getId());
@@ -204,6 +203,7 @@ class CarroController extends AbstractController
                 $this->addFlash('fail', 'No tienes BC suficientes para esta compra. Tienes ' . $usuarioCompra->getBanco()->getBalance() . ' BC disponibles.');
                 return $this->redirectToRoute('carro_get', ['id' => $idUsuarioCompra]);
             }
+
             $errorOperacion = false;
 
             foreach ($parametros as $llave => $parametro) {
@@ -221,7 +221,6 @@ class CarroController extends AbstractController
                 }
 
             }
-            //return $this->json (['respuesta' => $parametros, $articulos ]);
 
 
             $factura = new Factura();
@@ -247,9 +246,9 @@ class CarroController extends AbstractController
                     try {
                         $articuloPorId = $articuloRepository->find($articulo['id']);
                         $itemEnCarro = $itemsRepository->
-                        findItemsByCarroIdAndArticuloId($carroActual->getId(), $articuloPorId->getId());
+                        findItemByCarroIdAndArticuloId($carroActual->getId(), $articuloPorId->getId());
                         $bancoUsuario = $usuarioCompra->getBanco();
-                        //$vendedorArticulo = $vendedorRepository->find($usuarioCompra->getIdVendedor());
+
 
                         if ($articuloPorId != null && $carroActual != null
                             && $itemEnCarro != null && $bancoUsuario != null) {
@@ -270,9 +269,7 @@ class CarroController extends AbstractController
 
 
                                 $articuloPorId->setStock(($articuloPorId->getStock() - (int)$articulo['unidades']));
-                                /*$em->persist($articuloPorId);*/
                                 $articulosEnElCarro[] = $articuloPorId;
-                                //$em->flush();
                                 $detalles[] = $detalle;
                                 $vendedorArticulo->setImporteVentas($vendedorArticulo->getImporteVentas() + (int)$totalDetalle);
                                 $vendedorArticulo->setNumeroVentas($vendedorArticulo->getNumeroVentas() + (int)$articulo['unidades']);
@@ -289,29 +286,22 @@ class CarroController extends AbstractController
 
                             } else {
                                 $this->addFlash('fail', 'Solo quedan ' . $articuloPorId->getStock() . " unidades del articulo " . $articuloPorId->getNombre() . ' y has solicitado ' . (int)$articulo['unidades'] . '.Vuelve a intentarlo.');
-                                //return  $this->redirectToRoute('carro_get',['id' => $idUsuarioCompra]);
+
                             }
                         } else {
                             $this->addFlash('fail', 'Ha ocurrido un error. No se ha encontado el articulo ' . $articuloPorId->getNombre() . '.');
-                            // return  $this->redirectToRoute('carro_get',['id' => $idUsuarioCompra]);
-                            //return $this->json (['respuesta' => 2 ]);
-                        }
 
+                        }
                     } catch (\Exception $e) {
                         $errorOperacion = true;
                     }
-
                 }
             } else {
                 $this->addFlash('fail', 'Ha habido un error creando la factura. ');
                 return $this->redirectToRoute('carro_get', ['id' => $idUsuarioCompra]);
-                // return $this->json (['respuesta' => 3 ]);
+
             }
-            /*return $this->json (['respuesta' => $total,
-                            'articulos' => $articulos,
-                            'usuario' => $idUsuarioCompra,
-                            ]);*/
-            //return $this->json (['respuesta' => "todo bien" ]);
+
             if (!$errorOperacion) {
                 foreach ($itemsEnCarro as $itemCarro) {
                     $em->remove($itemCarro);
@@ -379,10 +369,11 @@ class CarroController extends AbstractController
                     EntityManagerInterface $em, Request $request)
     {
         if($securityManager->chequeaUsuarioSolicitud($request,$usuario)){
-            if($carroItemEliminar = $securityManager->
-            chequeaPropiedadCarro($usuario, $carroRepository)) {
+            $carroItemEliminar = $securityManager->
+            chequeaPropiedadCarro($usuario, $carroRepository);
+            if($carroItemEliminar) {
                 if($itemParaEliminar = $itemsRepository->
-                findItemsByCarroIdAndArticuloId($carroItemEliminar->getId(),$id)){
+                findItemByCarroIdAndArticuloId($carroItemEliminar->getId(),$id)){
                     $em->remove($itemParaEliminar);
                     $em->flush();
                     $itemsDelCarro = $itemsRepository->ItemsPorUsuario($carroItemEliminar->getId());
@@ -438,6 +429,7 @@ class CarroController extends AbstractController
                     $this->addFlash('fail','Solo puedes valorar tus facturas');
                     return $this->redirectToRoute('perfil_usuario', ['id' => $idUsuario]);
                 }
+
                 $contador = 0;
                 $valoracionForm = 0;
                 $idVendedor = 0;
@@ -447,7 +439,7 @@ class CarroController extends AbstractController
                 $valoraciones = [];
                $idVendedores = [];
                $idArticulos = [];
-               //return $this->json (['respuesta' => $parametros ]);
+
 
                foreach ($parametros as $llave => $parametro){
                    if ($llave == "idFactura" || $llave == "idUsuario"){
@@ -480,13 +472,13 @@ class CarroController extends AbstractController
                            'idFactura' => $FacturaValoracion->getId(), 'valor' => $valoracionForm,
                            'idValoracion' => $idValoracion];
                        $contador = 0;
-
                        continue;
                    }
                }
                 $errorValoracion = false;
                $valoracionesPersist = [];
-               //return $this->json (['respuesta' => $valoraciones]);
+
+               try {
                   foreach ($valoraciones as $val){
                       if ($val['idValoracion'] == 0) {
                       $valoracion = new Valoracion();
@@ -510,12 +502,14 @@ class CarroController extends AbstractController
                           $valoracionesPersist[] = $valoracionExistente;
                       }
                   }
+               } catch (\Exception $exception){
+                   $errorValoracion = true;
+               }
 
 
                if ($errorValoracion){
                    $this->addFlash('fail','Ha ocurrido un error durante la valoracion, intentalo en unos minutos.');
                    return $this->redirectToRoute('perfil_usuario', ['id' => $idUsuario]);
-
                } else {
                    foreach ($valoracionesPersist as $valoracionCrear){
                        $em->persist($valoracionCrear);
@@ -541,11 +535,11 @@ class CarroController extends AbstractController
                        $em->persist($articuloActual);
                        $em->flush();
                    }
+
                    $this->addFlash('success','Valoracion exitosa.');
-                   return $this->redirectToRoute('perfil_usuario', ['id' => $idUsuario]);
+                   return $this->redirectToRoute('factura', ['id' => $idFactura,'usuario'=> $idUsuario]);
 
                }
-
 
            } else {
                $this->addFlash('fail','Factura no encontrada');
